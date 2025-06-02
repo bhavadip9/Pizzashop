@@ -1,0 +1,131 @@
+@model Pizzashop.entity.ViewModels.LoginViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+    ViewData["Title"] = "Login";
+}
+
+
+<body class="pizzbody">
+    <div class="login-container ">
+        <div class="logologin mb-5">
+            <img src="~/images/logos/pizzashop_logo.png" alt="Logo"
+                style="object-fit: cover; width: 70px; height: 70px;">
+            <h1 style="font-weight:900; margin-top: 10px; ">PIZZASHOP</h1>
+        </div>
+
+        <h5 class="mb-3 ms-0 text-start " style="font-weight: 600;">Welcome,</h5>
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <div class="baricon">
+                    <input asp-for="Email" class="searchbaricon" type="email" placeholder="Email">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <span asp-validation-for="Email" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="mb-3">
+                <div class="baricon password-box">
+                    <input type="password" asp-for="Password" class="searchbaricon" id="password"
+                        placeholder="Password">
+                    <i class="bi bi-eye-fill eye-icon" onclick="togglePassword()"></i>
+                </div>
+                <span asp-validation-for="Password" class="text-danger text-start"
+                    style=" font-size:small; font-family:Noto Sans;"></span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="RememberMe" type="checkbox" id="RememberMe" value="true">
+                    <label class="form-check-label" for="RememberMe">Remember me</label>
+                </div>
+                <a asp-action="Passwordforget" class="text-secondary text-info-emphasis text-decoration-none">Forgot
+                    Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+    </div>
+</body>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+@* <div class="pizzbody p-3">
+    <div class="d-flex flex-row align-content-center justify-content-center align-items-center mb-5 gap-3">
+        <img src="~/images/logos/pizzashop_logo.png" alt="" style="object-fit: cover; width: 70px; height: 70px;">
+        <h1 style="font-weight:900;">PIZZASHOP</h1>
+    </div>
+
+    <div class=" mx-5 align-content-center align-items-center justify-content-center "
+        style=" text-align: -webkit-center;">
+
+        <div class="d-flex flex-column gap-3 col-8   align-item-center justify-content-center align-content-center">
+            <div class="mb-2 ms-0 text-start">
+                <h2>
+                    Welcome,
+                </h2>
+            </div>
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="bar align-items-center justify-content-between">
+                    <input asp-for="Email" class="searchbar ms-3 w-100" type="email" placeholder="Email">
+                    <i class="bi bi-person-fill me-3"></i>
+
+                </div>
+                <span>@Html.Raw( ViewBag.ErrorMessage)</span>
+                <span asp-validation-for="Email" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+                <br>
+                <div class="password-box bar align-items-center justify-content-between">
+                    <input type="password" asp-for="Password" class="searchbar  ms-3  " id="password"
+                        placeholder="password">
+                    <i class="bi bi-eye-fill eye-icon me-3"></i>
+                </div>
+                <span>@Html.Raw( ViewBag.ErrorMessage)</span>
+                <span asp-validation-for="Password" class="text-danger text-start"
+                    style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                <br>
+
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="RememberMe" type="checkbox" value="true" id="id">
+                        <label class="form-check-label" for="id">
+                            Remember me
+                        </label>
+                    </div>
+                    <a asp-action="Passwordforget" class="text-secondary text-info-emphasis text-decoration-none">Forgot
+                        Password?</a>
+                </div>
+
+
+
+
+
+                <div class="form-group row align-items-center mx-2 mb-5 mt-5">
+                    <input type="submit" value="Login" class="btn btn-primary" />
+                </div>
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@

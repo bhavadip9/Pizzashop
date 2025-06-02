@@ -1,0 +1,133 @@
+@model Pizzashop.entity.ViewModels.CustomerReviewViewModel
+
+<div class="modal fade" id="CustomerReviewModel" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+    tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="CustomerReviewForm" asp-action="CustomerReview" asp-controller="OrderApp">
+            @* <form method="post" id="CustomerReviewForm"> *@
+                <div class="modal-body">
+
+                    <input type="hidden" id="ItemID" asp-for="CustomerId">
+                    <input type="hidden" id="ItemID" asp-for="orderid">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="deleteModalLabel">Customer Review</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body ">
+
+
+                        <div class="d-flex  justify-content-between star-rating">
+                            <input type="hidden" id="FoodRating" asp-for="FoodRating" />
+                            <p>Food</p>
+                            <div class="gap-2 d-flex stars">
+                                <i class="bi bi-star text-warning" data-index="1"></i>
+                                <i class="bi bi-star text-warning" data-index="2"></i>
+                                <i class="bi bi-star text-warning" data-index="3"></i>
+                                <i class="bi bi-star text-warning" data-index="4"></i>
+                                <i class="bi bi-star text-warning" data-index="5"></i>
+                            </div>
+                        </div>
+
+                        <div class="d-flex  justify-content-between star-rating">
+                            <input type="hidden" id="ServiceRating" asp-for="ServiceRating" />
+                            <p>Service</p>
+                            <div class="gap-2 d-flex stars">
+                                <i class="bi bi-star text-warning" data-index="1"></i>
+                                <i class="bi bi-star text-warning" data-index="2"></i>
+                                <i class="bi bi-star text-warning" data-index="3"></i>
+                                <i class="bi bi-star text-warning" data-index="4"></i>
+                                <i class="bi bi-star text-warning" data-index="5"></i>
+                            </div>
+                        </div>
+
+                        <div class="d-flex  justify-content-between star-rating">
+                            <input type="hidden" id="AmbienceRating" asp-for="AmbienceRating" />
+                            <p>Ambience</p>
+                            <div class="gap-2 d-flex stars">
+                                <i class="bi bi-star text-warning" data-index="1"></i>
+                                <i class="bi bi-star text-warning" data-index="2"></i>
+                                <i class="bi bi-star text-warning" data-index="3"></i>
+                                <i class="bi bi-star text-warning" data-index="4"></i>
+                                <i class="bi bi-star text-warning" data-index="5"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mt-3">
+                            <textarea asp-for='OrderComment' type="text" class="form-control hover-effect" id="Comment"
+                                placeholder="Comment" style="height: 100px;"></textarea>
+                            <label asp-for='OrderComment'>Comment</label>
+                            <span asp-validation-for="OrderComment" class="text-danger text-start "
+                                style=" font-size:small; font-family:Noto Sans; "></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-primary ">Yes</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.querySelectorAll('.star-rating').forEach((group, groupIndex) => {
+        const stars = group.querySelectorAll('i');
+        const inputIds = ['FoodRating', 'ServiceRating', 'AmbienceRating'];
+
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const selectedIndex = parseInt(this.getAttribute('data-index'));
+
+                // Set selected star visuals
+                stars.forEach(s => {
+                    const index = parseInt(s.getAttribute('data-index'));
+                    s.classList.toggle('bi-star-fill', index <= selectedIndex);
+                    s.classList.toggle('bi-star', index > selectedIndex);
+                });
+
+                // Update corresponding hidden input
+                document.getElementById(inputIds[groupIndex]).value = selectedIndex;
+            });
+        });
+    });
+
+
+
+    @* $("#CustomerReviewForm").submit(function (event) {
+
+        event.preventDefault();
+        var form = $('#CustomerReviewForm'); // You need to use standard javascript object here
+
+        var formData = new FormData(form[0]);
+        console.log(formData)
+
+       
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/CustomerReview",
+            data: formData,
+            success: function (response) {
+
+                console.log(response);
+                $('#CustomerReviewModel').modal('hide');
+                if (response.success == false) {
+                    toastr.error(response.message);
+                } else {
+                    var url = '@Url.Action("MenuApp", "OrderApp")' + '?id=' + response.orderId;
+                    window.location.href = url;
+                    toastr.success(response.message);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+    }) *@
+
+</script>

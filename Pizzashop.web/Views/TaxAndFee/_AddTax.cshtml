@@ -1,0 +1,67 @@
+@model Pizzashop.entity.ViewModels.AddTaxViewModel
+
+
+
+<div class="modal fade" id="AddTaxModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Tax</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="AddTaxForm">
+                <input type="hidden" asp-for="TaxId" />
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="TaxName" type="text" class="form-control hover-effect" placeholder="">
+                        <label asp-for="TaxName">Name</label>
+                        <span asp-validation-for="TaxName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+
+                    </div>
+                    <div class="gap-3" style="display: flex; justify-content: space-between; ">
+                        <div class="form-floating mb-3 " style="width: 230px;">
+                            <select class="form-select" aria-label="Floating label select example" asp-for="TaxType">
+                                <option value="true">Percentage</option>
+                                <option value="false">Flat Amount</option>
+                            </select>
+                            <label>Taxs Type*</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="TaxAmount" type="number" class="form-control hover-effect" placeholder="">
+                            <label asp-for="TaxAmount">Amount</label>
+                            <span asp-validation-for="TaxAmount" class="text-danger text-start "
+                                style=" font-size:small; font-family:Noto Sans; "></span>
+
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="form-check form-switch">
+                            <h6>
+                                <input class="form-check-input toggle-switch" id="IsAvailable" asp-for="IsEnable"
+                                    type="checkbox" role="switch">
+                                <label class="form-check-label" for="addAvailable">IsEnable</label>
+                            </h6>
+                        </div>
+                        <div class="form-check form-switch">
+                            <h6>
+                                <input class="form-check-input toggle-switch" id="IsAvailable" asp-for="IsDefault"
+                                    type="checkbox" role="switch">
+                                <label class="form-check-label" for="addAvailable">IsDefault</label>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+  <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

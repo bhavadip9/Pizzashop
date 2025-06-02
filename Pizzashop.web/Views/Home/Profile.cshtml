@@ -1,0 +1,360 @@
+@model Pizzashop.entity.ViewModels.ProfileViewModel
+@using System.Security.Claims;
+@{
+    ViewData["Title"] = "Profile Page";
+}
+
+@{
+    var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+}
+@if (role == "Chef") { }
+<div class="">
+    <div class="row">
+        <div class="col-lg-12 d-flex justify-content-between mb-4">
+            <div>
+                <h1 class="fw-bold" style="color: #0077cc;">My Profile </h1>
+            </div>
+        </div>
+
+        <form asp-action="profile" enctype="multipart/form-data" asp-antiforgery="true" method="post">
+            <input type="hidden" asp-for="UserId" />
+            <div class="mb-5">
+                <div>
+                    <div class="position-relative">
+                        <img src="~/images/profile_div_bg.jpg" alt="" style=" width: 100%; height: 100px; "
+                            class="col-4">
+                    </div>
+
+                    <div class="">
+                        <div class="position-absolute" style="margin-top: -40px; z-index: 1;">
+                            <img src=@Model.Image class="position-relative rounded-circle profile-image"
+                                alt="Profile Image" height="100" width="100" style="object-fit: cover;">
+                            <label class="position-absolute bottom-0 end-0 bg-light rounded-circle p-1 border"
+                                for="upload-photo" style="cursor: pointer;">
+                                <img src="~/images/icons/camera.png" width="20" height="20" alt="Upload">
+                            </label>
+                            <input type="file" id="upload-photo" class="d-none" asp-for="FormFile" accept="image/png, image/jpeg">
+                        </div>
+                        <div class=" " style="margin-left:110px ;">
+                            <h3>
+                                @role
+                            </h3>
+                            <span>@Model.UserName</span>
+
+                            <p style="float: right; margin-right: 20px;">
+                                @Model.Email
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card p-4" style="margin-top: 0px;">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 form-floating">
+
+                            <input asp-for="FirstName" type="text" class="form-control" id="fname" placeholder="">
+                            <label for="fname" style="font-size: small;"> First Name</label>
+                            <span asp-validation-for="FirstName" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" asp-for="LastName" placeholder="">
+                            <label asp-for="LastName" style="font-size: small;">Last Name</label>
+                            <span asp-validation-for="LastName" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" asp-for="UserName">
+                            <label asp-for="UserName" style="font-size: small;">User Name</label>
+                            <span asp-validation-for="UserName" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" asp-for="Phone">
+                            <label asp-for="Phone" style="font-size: small;">Phone</label>
+                            <span asp-validation-for="Phone" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                        </div>
+                        <div class="col-md-4 form-floating">
+
+                            <div class="form-floating">
+                                <select class="form-select" id="countrySelect"
+                                    aria-label="Floating label select example" asp-for="CountryId">
+                                </select>
+                                <label for="countrySelect">Country</label>
+                                <span asp-validation-for="CountryId" class="text-danger text-start"
+                                    style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                            </div>
+
+                        </div>
+                        <div class="col-md-4 form-floating">
+                            <div class="form-floating">
+                                <select class="form-select" id="stateSelect" aria-label="Floating label select example"
+                                    asp-for="StateId">
+                                </select>
+                                <label for="stateSelect">State</label>
+                                <span asp-validation-for="StateId" class="text-danger text-start"
+                                    style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                            </div>
+
+                        </div>
+                        <div class="col-md-4 form-floating">
+                            <div class="form-floating">
+                                <select class="form-select" id="citySelect" aria-label="Floating label select example"
+                                    asp-for="CityId">
+                                </select>
+                                <label for="citySelect">City</label>
+                                <span asp-validation-for="CityId" class="text-danger text-start"
+                                    style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                            </div>
+
+                        </div>
+                        <div class="col-md-8 form-floating">
+                            <input type="text" class="form-control" asp-for="Address">
+                            <label asp-for="Address" style="font-size: small;">Address</label>
+                            <span asp-validation-for="Address" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                        </div>
+                        <div class="col-md-4 form-floating">
+                            <input type="text" class="form-control" asp-for="ZipCode">
+                            <label asp-for="ZipCode" style="font-size: small;">Zipcode</label>
+                            <span asp-validation-for="ZipCode" class="text-danger text-start"
+                                style="float: left; font-size:small; font-family:Noto Sans;"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center justify-content-md-end mt-3">
+                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                        @if (role == "Admin")
+                        {
+                            <a asp-action="AdminHome" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                        }
+                        else if (role == "Manager")
+                        {
+                            <a asp-action="ManagerHome" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-controller="OrderApp" class="btn btn-secondary">Cancel</a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        debugger
+        const form = document.querySelector('form');
+        const updateButton = form.querySelector('button[type="submit"]');
+        const allInputs = form.querySelectorAll('input, select');
+
+        let isFormChanged = false;
+
+       
+        updateButton.disabled = true;
+
+      
+        const initialFormState = Array.from(allInputs).map((field) => {
+            if (field.type === 'file') return null; // for file inputs we skip comparison
+            return field.type === 'checkbox' || field.type === 'radio'
+                ? field.checked
+                : field.value;
+        });
+
+        // Enable button if any input changes
+        allInputs.forEach((input, index) => {
+            input.addEventListener('input', function () {
+                isFormChanged = Array.from(allInputs).some((field, idx) => {
+                    if (field.type === 'file') return false; // Skip file comparison
+                    const fieldValue = field.type === 'checkbox' || field.type === 'radio'
+                        ? field.checked
+                        : field.value;
+                    return fieldValue !== initialFormState[idx];
+                });
+
+                updateButton.disabled = !isFormChanged;
+            });
+        });
+    });
+    $(document).ready(function () {
+        
+        $("#upload-photo").on("change", function () {
+           
+
+            var file = this.files[0];
+
+            if (file) {
+                var fileName = file.name.toLowerCase();
+                var validform = ['.jpg', '.png', '.jpeg','.jfif'];
+
+                const isValid = validform.some(extention => fileName.endsWith(extention));
+                if (isValid) {
+
+                    var formData = new FormData();
+                    formData.append("FormFile", file);
+
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $(".profile-image").attr("src", e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    toastr.error("Please Upload a validform")
+                    return;
+                }
+
+                // Send AJAX request
+                $.ajax({
+                    url: "/Home/UpdateImage",
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // Handle success
+                      //  toastr.success("Upload successful")
+
+                        // Optionally update the image again from server response
+                        if (response.imageUrl) {
+                            $(".profile-image").attr("src", response.imageUrl);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error
+                        toastr.error("Upload failed", error);
+                    }
+                });
+            }
+        });
+        console.log("...................")
+        $.ajax({
+            url: '/User/GetAllRole',
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+
+                $.each(data, function (index, Role) {
+                    if (Role.roleId == @Model.RoleId) {
+                        $('#roleSelect').append(`<option value="${Role.roleId}" selected>${Role.roleName}</option>`);
+                    }
+                    else {
+                        $('#roleSelect').append(`<option value="${Role.roleId}">${Role.roleName}</option>`);
+                    }
+                });
+            }
+        });
+    })
+    debugger
+    $.ajax({
+        type: 'GET',
+        url: '/User/GetAllCounty',
+        success: function (data) {
+            console.log("..............",data);
+            console.log("..............",data);
+            var s = '<option value="-1">Please select a country</option>';
+            for (var i = 0; i < data.length; i++) {
+                debugger
+                if (data[i].countryId == @Model.CountryId) {
+                    s += '<option value="' + data[i].countryId + '" selected>' + data[i].countryName + '</option>';
+                }
+                else {
+                    s += '<option value="' + data[i].countryId + '">' + data[i].countryName + '</option>';
+                }
+            }
+            $("#countrySelect").html(s);
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: '/User/GetStatesByCountry',
+        data: { CountryId: @Model.CountryId },
+        success: function (data) {
+            console.log(data);
+            var s = '<option value="-1">Please select a state</option>';
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].stateId == @Model.StateId) {
+                    s += '<option value="' + data[i].stateId + '" selected>' + data[i].stateName + '</option>';
+                }
+                else {
+                    s += '<option value="' + data[i].stateId + '">' + data[i].stateName + '</option>';
+                }
+            }
+            $("#stateSelect").html(s);
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: '/User/GetCitiesByState',
+        data: { stateId: @Model.StateId },
+        success: function (data) {
+            console.log(data);
+            var s = '<option value="-1">Please select a city</option>';
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].cityId == @Model.CityId) {
+                    s += '<option value="' + data[i].cityId + '" selected>' + data[i].cityName + '</option>';
+                }
+                else {
+                    s += '<option value="' + data[i].cityId + '">' + data[i].cityName + '</option>';
+                }
+            }
+            $("#citySelect").html(s);
+        }
+    });
+
+
+    $('#countrySelect').change(function () {
+        debugger
+        var countryId = $(this).val();
+        $('#stateSelect').empty().append('<option selected>Please select a city</option>').prop('disabled', false);
+        $('#citySelect').empty().append('<option selected>Please select a city</option>').prop('disabled', false);
+        $.ajax({
+            type: 'GET',
+            url: '/User/GetStatesByCountry',
+            data: { CountryId: countryId },
+            success: function (data) {
+
+                console.log(data);
+                var s = '<option value="-1">Please select a state</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].stateId + '">' + data[i].stateName + '</option>';
+                }
+                $("#stateSelect").html(s);
+            }
+        });
+    });
+
+    $('#stateSelect').change(function () {
+        var stateId = $(this).val();
+        $('#citySelect').empty().append('<option selected>Please select a city</option>').prop('disabled', false);
+        $.ajax({
+            type: 'GET',
+            url: '/User/GetCitiesByState',
+            data: { stateId: stateId },
+            success: function (data) {
+                var s = '<option value="-1">Please select a city</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].cityId + '">' + data[i].cityName + '</option>';
+                }
+                $("#citySelect").html(s);
+            }
+        });
+    });
+
+</script>

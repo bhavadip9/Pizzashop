@@ -1,0 +1,110 @@
+@model Pizzashop.entity.ViewModels.AddTaxViewModel
+<div>
+    <div class="d-flex flex-row justify-content-between  mb-3">
+        <h1 class=" fw-bold" style="color: #0077cc;">Taxs/Fee</h1>
+        <div>
+            <div class="d-flex flex-row gap-3 mt-3">
+                <div class="input-group " style="width: 60%;">
+                    <input type="search" name="search " id="Serch_tax" placeholder="Search"
+                        class="form-control border-end-0">
+                    <span class="input-group-text bg-white border-start-0 d-md-block d-none">
+                        <i class="bi bi-search" id="searchOrder"></i>
+                    </span>
+                </div>
+
+                @if ((bool)Context.Items["CanAddEdit"] == true)
+                {
+                    <button class="btn btn-primary " id="AddTaxButton"><i class="bi bi-plus"></i>Add Tax
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div id="TaxTable">
+
+    </div>
+
+</div>
+
+
+<div id="AddTaxdiv"></div>
+
+
+
+<script>
+
+    var Taxsearch = "";
+
+    $(document).on('click', "#AddTaxButton", function () {
+        $.ajax({
+            url: '/TaxAndFee/AddTax',
+            type: 'GET',
+            success: function (response) {
+                $("#AddTaxdiv").html(response);
+                $("#AddTaxModal").modal('show');
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+            }
+        })
+    })
+    // $(document).off('submit', '#AddTaxForm');
+    $(document).on('submit', '#AddTaxForm', function (e) {
+        e.preventDefault();
+        var formData = new FormData($('#AddTaxForm')[0]);
+        console.log(formData);
+
+        $.ajax({
+            url: '/TaxAndFee/AddTax',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#AddTaxModal').modal('hide');
+                    // location.reload();
+                    TaxSection(Taxsearch);
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error occurred:', error);
+            }
+        });
+
+    });
+
+
+    $(document).ready(function () {
+        TaxSection(Taxsearch);
+    });
+
+    function TaxSection(search) {
+
+        $.ajax({
+            url: 'TaxAndFeeList',
+            type: 'GET',
+            data: { search: search },
+            success: function (response) {
+                console.log("Data", response)
+                $("#TaxTable").html(response);
+            },
+            error: function (xhr, status, error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+    $('#Serch_tax').on('input', function () {
+
+        Taxsearch = $("#Serch_tax").val();
+        TaxSection(Taxsearch);
+    });
+
+
+
+</script>

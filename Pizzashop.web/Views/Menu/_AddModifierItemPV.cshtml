@@ -1,0 +1,226 @@
+@model Pizzashop.entity.ViewModels.AddModifierViewModel
+<style>
+    .dropdown-toggle::after {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="modal fade" id="addmodifier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" id="AddModifierItem">
+                <div id="modifierInputsContainer"></div>
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Add New Modifier
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="dropdown">
+                                            <button class="btn dropdown-toggle w-100 bg-white p-3 d-flex"
+                                                style="border: 1px solid rgb(203, 187, 187);" type="button"
+                                                id="ModifierSelectGroup" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                Select ModifierGroup
+                                            </button>
+                                            <ul class="dropdown-menu w-100 dropdown-checkboxes-select"
+                                                aria-labelledby="ModifierSelectGroup">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="addCategoryItemName"
+                                                placeholder="Name*" name="ModifierName">
+                                            <label for="addCategoryItemName">Name</label>
+                                            <span asp-validation-for="ModifierName" class="text-danger text-start "
+                                                style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="addRate" placeholder="Rate"
+                                                name="Rate" asp-for="Rate" value="0">
+                                            <label for="addRate">Rate*</label>
+                                            <span asp-validation-for="Rate" class="text-danger text-start "
+                                                style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="addCategoryItemQuantity"
+                                                name="Quantity" placeholder="Quantity" value="0">
+                                            <label for="addCategoryItemQuantity">Quantity*</label>
+                                            <span asp-validation-for="ModifierName" class="text-danger text-start "
+                                                style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="UnitId" id="UnitSelectForMOdifier">
+                                            </select>
+                                            <label for="addUnitId">Unit*</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" style="height: 100px"
+                                            id="addCategoryItemDescription" rows="3" name="Description"></textarea>
+                                        @* <textarea class="form-control" placeholder="Leave a comment here"
+                                            id="addCategoryItemDescription" style="height: 100px" name="Description">
+                                        </textarea> *@
+                                        @* <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea> *@
+                                        <label for="addCategoryItemDescription">Description</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-white border border-primary"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+                @* <input type="hidden" id="addItemId"> *@
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var tempArrayModifier = [];
+    GetModifierforModifier();
+    function GetModifierforModifier() {
+        $.ajax({
+            url: "/Menu/GetAllModifier",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                console.log("Loading Modifier Groups...", data);
+                let dropdownMenu = $(".dropdown-checkboxes-select");
+                dropdownMenu.empty();
+
+                data.forEach(modifier => {
+                    let listItem = `
+                    <li class="ms-3">
+                        <div class="form-check me-4">
+                            <input 
+                                class="form-check-input modifier-group-checkbox" 
+                                data-name="${modifier.groupName}" 
+                                id="mod-${modifier.modifierGroupId}" 
+                                type="checkbox" 
+                                value="${modifier.modifierGroupId}">
+                            <label 
+                                class="form-check-label modifier-label" 
+                                for="mod-${modifier.modifierGroupId}">
+                                ${modifier.groupName}
+                            </label>
+                        </div>
+                    </li>`;
+                    dropdownMenu.append(listItem);
+                });
+
+                $(".modifier-group-checkbox").change(function () {
+                    let modifierId = $(this).val();
+
+                    if ($(this).is(":checked")) {
+                        tempArrayModifier.push(parseInt(modifierId));
+                    } else {
+                        tempArrayModifier = tempArrayModifier.filter(id => id !== parseInt(modifierId));
+                    }
+
+                    UpdateSelectBar();
+                    updateDropdownButtonText()
+                    console.log("Selected Modifier IDs:", tempArrayModifier);
+                });
+            },
+            error: function () {
+                alert("Error loading modifier groups.");
+            }
+        });
+    }
+
+    function UpdateSelectBar() {
+        let container = $("#modifierInputsContainer");
+        container.empty();
+
+        tempArrayModifier.forEach(id => {
+            container.append(`<input type="hidden" name="SelectedModifierIds" value="${id}">`);
+        });
+    }
+
+    function updateDropdownButtonText() {
+        let button = $("#ModifierSelectGroup");
+        if (tempArrayModifier.length === 0) {
+            button.text("Select ModifierGroup");
+        } else {
+            let names = [];
+            $(".modifier-group-checkbox:checked").each(function () {
+                names.push($(this).data('name'));
+            });
+            button.text(names.join(", "));
+        }
+    }
+
+    $("#AddModifierItem").submit(function (e) {
+        e.preventDefault();
+        var form = $(this);
+        console.log(form)
+        if (!form.valid()) {
+            console.log("Form is not valid");
+            return;
+        }
+
+        UpdateSelectBar();
+        updateDropdownButtonText();
+
+
+        let formData = new FormData(this);
+        console.log(formData);
+        console.log(formData.entries())
+        $.ajax({
+            url: "/Menu/AddModifier",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success == true) {
+                    toastr.success(response.message)
+                }
+                else {
+                    toastr.error(response.message)
+                }
+                $('#addmodifier').modal('hide');
+                const firstCategoryLink = document.querySelector('.modifier-item-sidebar');
+                if (firstCategoryLink) {
+
+                    const firstCategoryId = firstCategoryLink.getAttribute('data-id');
+                    currentModifierGroup = firstCategoryId;
+                    modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error adding item:", error);
+            }
+        });
+    });
+
+</script>
+<partial name="_ValidationScriptsPartial" />

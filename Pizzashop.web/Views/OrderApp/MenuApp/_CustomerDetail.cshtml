@@ -1,0 +1,87 @@
+@model Pizzashop.entity.ViewModels.CustomerDetailViewModel
+
+
+<div class="modal fade" id="CustomerDetailModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Customer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="EditCustomerDetail" method="post">
+                <input type="text" asp-for="Orderid" hidden>
+                <input type="text" asp-for="CustomerId" hidden>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for='CustomerName' type="text" class="form-control hover-effect" id="name"
+                            placeholder="Name">
+                        <label asp-for='CustomerName'>Name</label>
+                        <span asp-validation-for="CustomerName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+
+                    </div>
+                    <div class="d-flex mt-2  gap-2 justify-content-between">
+                        <div class="form-floating col-6">
+                            <input asp-for="CustomerPhone" rows="5" class="form-control hover-effect" placeholder="" />
+                            <label asp-for="CustomerPhone">Phone</label>
+                            <span class="text-danger" asp-validation-for="CustomerPhone"></span>
+                        </div>
+                        <div class="form-floating clo-6">
+                            <input asp-for="TotalPerson" rows="5" class="form-control hover-effect" placeholder="" />
+                            <label asp-for="TotalPerson">No. of Person</label>
+                            <span class="text-danger" asp-validation-for="TotalPerson"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="form-floating mt-3">
+                        <input asp-for='CustomerEmail' type="text" class="form-control hover-effect" id="name"
+                            placeholder="Email">
+                        <label asp-for='CustomerEmail'>Email</label>
+                        <span asp-validation-for="CustomerEmail" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    $(document).on("submit", "#EditCustomerDetail", function (event) {
+        event.preventDefault();
+
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/CustomerDetail",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+
+                $('#CustomerDetailModal').modal('hide');
+                if (response.success == false) {
+                    toastr.error(response.message);
+                } else {
+                    var url = '@Url.Action("MenuApp", "OrderApp")' + '?id=' + response.orderId;
+                    window.location.href = url;
+                    toastr.success(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+
+    });
+</script>

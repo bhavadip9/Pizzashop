@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="max-width: 600px; width: 100%; border-radius: 12px;">
+        <div class="card-body text-center">
+            <h2 class="text-danger fw-bold">Access Denied</h2>
+            <p class="lead">You do not have permission to view this page. If you believe this is a mistake, please contact the system administrator.</p>
+            <hr />
+            <h4>Possible Causes:</h4>
+            <ul class="list-unstyled text-left">
+                <li><i class="bi bi-check-circle-fill text-success"></i> Insufficient permissions</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Invalid access attempt</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Restricted content</li>
+            </ul>
+            <hr />
+            <div class="mt-4">
+                <a asp-controller="Login" asp-action="Logout" class="btn btn-primary">Go to Home</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+

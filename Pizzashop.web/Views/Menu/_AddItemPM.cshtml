@@ -1,0 +1,458 @@
+@model Pizzashop.entity.ViewModels.AddItemViewModel
+
+
+
+
+<div class="modal fade" id="AddCategoryItem"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered ">
+        <div class="modal-content">
+            <form   method="post" id="addItemForm" enctype="multipart/form-data" asp-antiforgery="true" >
+                 <input type="hidden" id="selectedModifierGroupJson" name="SelectedModifierGroupJson" />
+<input type="hidden" id="selectedModifierGroupIds" name="SelectedModifierGroupIds" />
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Add New Menu Item</h1>
+                    <button type="button" class="btn-close cancelbutton" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" 
+                                                aria-label="Floating label select example" id="CategorySelectAdd" asp-for="CategoryId">
+                                            </select>
+                                            <label for="AddCategory">Categories*</label>
+                                             <span asp-validation-for="CategoryId" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="addCategoryItemName"
+                                                placeholder="Name*" asp-for="ItemName">
+                                            <label for="addCategoryItemName" asp-for="ItemName">Name</label>
+                                             <span asp-validation-for="ItemName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="addItemType"
+                                                    aria-label="Floating label select example" asp-for="FoodType">
+                                                    <option value="Vegetarian">Vegetarian</option>
+                                                    <option value="Non-Vegetarian">Non-Vegetarian</option>
+                                                    <option value="Vegan">Vegan</option>
+                                                </select>
+                                            <label for="addItemType">Item Type*</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="addRate" placeholder="Rate" asp-for="Price"
+                                                value="0">
+                                            <label for="addRate">Rate*</label>
+                                              <span asp-validation-for="Price" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="addCategoryItemQuantity" asp-for="Quantity" placeholder="Quantity"
+                                                value="0">
+                                            <label for="addCategoryItemQuantity">Quantity*</label>
+                                            <span asp-validation-for="Quantity" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" 
+                                                    aria-label="Floating label select example" asp-for="UintId" id="UnitSelectAdd">abcd
+                                                </select>
+                                                <label for="addUnitId">Unit*</label>
+                                                  <span asp-validation-for="UintId" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col d-flex align-items-center justify-content-center">
+                                        <h5>
+                                            <div class="form-check form-switch">
+                                                 <input class="form-check-input toggle-switch" asp-for="IsAvailable"
+                                                type="checkbox" role="switch">
+                                                <label class="form-check-label" for="addAvailable">Available</label>
+                                            </div>
+
+                                    </div>
+                                    <div class="col d-flex align-items-center justify-content-center">
+                                        <h5>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" asp-for="IsDefault" role="switch" id="addTax">
+                                                <label class="form-check-label" for="addTax" >Default
+                                                    Tax</label>
+                                            </div>
+                                        </h5>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="taxpercentage"
+                                                placeholder="Tax Percentage" asp-for="Tax">
+                                            <label for="taxpercentage">Tax
+                                                Percentage </label>
+                                                  <span asp-validation-for="Tax" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="addCode" placeholder="Short Code" asp-for="shortcode">
+                                            <label for="addCode">Short
+                                                Code</label>
+                                                 <span asp-validation-for="shortcode" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                  
+                                     <div class="form-floating">
+                        <textarea asp-for="Descriptionitem" rows="5" class="form-control hover-effect" placeholder=""
+                            style="height: 100px" id="addCategoryItemDescription"></textarea>
+                        <label asp-for="Descriptionitem" class="ms-2">Description</label>
+                          <span asp-validation-for="Descriptionitem" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                    </div>
+                                </div>
+                                <div class="row ms-1 me-1">
+                                    <h6 class="mb-1 mt-2 ms-0">Upload Image</h6>
+                                    <div class="border form-control ">
+                                        <label for="formfile1" style="z-index: 4;"
+                                            class="form-label d-flex gap-2 justify-content-center align-items-center pt-3 ">
+                                            <h3><i class="bi bi-cloud-arrow-up-fill"></i> 
+                                            </h3>
+                                              <input class="form-control" hidden type="file" id="formfile1" asp-for="FormFile" accept="image/png, image/gif, image/jpeg" onchange="newpreviewitem()" >
+                                            <img src="images/cloud-upload-icon.svg" id="upload-image-item" alt="">
+                                            <span class="pb-2">
+                                                Drag and Drop or Browse
+                                                Files
+                                            </span>
+                                        </label>              
+                                      
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                           <div class="col-4" style="background-color: rgb(240, 211, 133);">
+
+                               <div class="dropdown ">
+  <button class="btn mt-2 dropdown-toggle w-100 bg-white" type="button" id="SelectModifierInItemAdd" data-bs-toggle="dropdown" aria-expanded="false">
+    Select ModifierGroup
+  </button>
+  <ul class="dropdown-menu dropdown-checkboxes w-100 dropdown-checkboxes-add" aria-labelledby="SelectModifierInItemAdd">
+   
+  </ul>
+</div>
+
+
+<div id="modifierContainer" style="overflow-y: scroll; height: 450px;"></div>
+
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="saveButton">Save</button>
+                    <button type="button" class=" cancelbutton btn btn-white border border-primary"
+                        data-bs-dismiss="modal" >Cancel</button>
+                </div>
+
+                <input type="hidden" id="addItemId">
+            </form>
+        </div>
+    </div>
+</div>
+
+  <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> 
+
+<script>
+
+  
+function newpreviewitem() {
+        const fileInput = document.getElementById("formfile1");
+        const image = document.getElementById("upload-image-item");
+        const file = fileInput.files[0];
+
+        if (file) {
+            image.src = URL.createObjectURL(file);
+            image.style.width = "8%";
+            image.style.height = "40px";
+        }
+    }
+$(".cancelbutton").on("click",function(){
+     location.reload()
+})
+   
+$('#addItemForm').submit(function (e) {
+   
+     e.preventDefault(); 
+     var id =$("#CategorySelectAdd").val();
+        if(id== -1){
+            toastr.error("Please Select Category");
+            return;
+        }
+    let selectedModifierGroupIds = tempArray.map(item => item.id);
+    let jsondata = JSON.stringify(temp2); 
+
+    console.log("JSON Data:", jsondata); 
+
+    $("#selectedModifierGroupJson").val(jsondata);
+    $('#selectedModifierGroupIds').val(selectedModifierGroupIds.join(','));
+    let fileInput = $('#formfile').prop('files')[0];
+
+    let formData = new FormData(this);
+
+    formData.append("SelectedModifierGroupJson", jsondata);
+    formData.append("SelectedModifierGroupIds", selectedModifierGroupIds.join(',')); 
+    formData.append("FormFile", fileInput);
+
+     
+   
+    $.ajax({
+        url: "/Menu/AddItem",
+        type: "POST",
+        data: formData,
+        processData: false,  
+        contentType: false,  
+        success: function (response) {
+            
+           if(response.success==true){
+            toastr.success(response.message)
+             $('#AddCategoryItem').modal('hide');
+              location.reload()
+           }else{
+            toastr.error(response.message)
+           }    
+        }
+    });
+});
+
+
+
+    
+let selectedModifierGroupsAdd = [];
+let tempArray = [];
+let temp2 = [];
+
+function loadModifierGroups() {
+    $.ajax({
+        url: "/Menu/GetAllModifier",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            console.log("Loading Modifier Groups...");
+            let dropdownMenu = $(".dropdown-checkboxes-add");
+            dropdownMenu.empty();
+
+           
+            data.forEach(modifier => {
+                let listItem = `
+                    <li>
+                        <div class="form-check ms-2">
+                            <input 
+                                class="form-check-input modifier-checkbox" 
+                                data-name="${modifier.groupName}" 
+                                id="mod-${modifier.modifierGroupId}" 
+                                type="checkbox" 
+                                value="${modifier.modifierGroupId}">
+                            <label 
+                                class="form-check-label modifier-label" 
+                                for="mod-${modifier.modifierGroupId}">
+                                ${modifier.groupName}
+                            </label>
+                        </div>
+                    </li>`;
+                dropdownMenu.append(listItem);
+            });
+        },
+        error: function () {
+            alert("Error loading modifier groups.");
+        }
+    });
+}
+
+
+loadModifierGroups();
+
+function syncSelectedModifierGroups() {
+    selectedModifierGroupsAdd = [...tempArray];
+    console.log("Synced selectedModifierGroups:", selectedModifierGroupsAdd);
+}
+
+
+
+function getModifierGroupMax(modifierId) {
+    console.log("Call here .............")
+    return $(`.Mximum${modifierId}`).val();
+}
+
+function getModifierGroupMin(modifierId) {
+     console.log("Call here .............")
+    return $(`.Minimun${modifierId}`).val();
+}
+
+
+function addModifierSection(modifierId, modifierName) {
+   
+    console.log("Adding Modifier Section:______ Call main", modifierId, modifierName);
+
+    $.ajax({
+        url: "/Menu/GetModifierItem",
+        type: "GET",
+        dataType: "json",
+        data: { modifierGroupId: modifierId },
+        success: function (data) {
+            let htmlContent = `
+                <div class="modifier-group-container mt-3 mx-3" id="group-${modifierId}">
+                    <div class="modifier-group-header d-flex justify-content-between" data-groupid="${modifierId}">
+                        <div>
+                            <strong class="d-block">${modifierName}</strong>
+                            <small>min</small>
+                            <select class="modifier-qty-add Minimun1 form-select Minimun${modifierId}" data-group-id="${modifierId}">                           
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="delete-group btn  d-block p-0" data-group-id="${modifierId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <small>max</small>
+                            <select class="modifier-qty-add Mximum1 form-select Mximum${modifierId}" id="MinimumValue" data-group-id="${modifierId}">                           
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modifier-items">`;
+
+            data.forEach(modifier => {
+                htmlContent += `
+                    <div class="modifier-item d-flex justify-content-between">
+                        <div><i class="bi bi-dot"></i>${modifier.modifierName}</div>
+                        <div>
+                            <span class="modifier-price me-3">₹${modifier.rate}</span>
+                        </div>
+                    </div>`;
+            });
+
+            htmlContent += `
+                    </div>
+                </div>`;
+            $("#modifierContainer").append(htmlContent);
+        },
+        error: function () {
+            alert("Error loading modifiers.");
+        }
+    });
+}
+
+
+$(document).on('change',".modifier-qty-add", function(e) {
+
+    
+    // Check if a min or max select was changed
+    if(e.target.matches('select.Minimun1, select.Mximum1')) { // for group 1
+        const groupId = e.target.getAttribute('data-group-id');
+        const minSelect = document.querySelector(`.Minimun${groupId}`);
+        const maxSelect = document.querySelector(`.Mximum${groupId}`);
+        let min = parseInt(minSelect.value);
+        let max = parseInt(maxSelect.value);
+        
+        // If min > max, set max = min (or vice versa as desired)
+        if (min > max) {
+            // If min changed, set max to min
+            if (e.target === minSelect) {
+                toastr.error("Minimum cannot be greater than maximum!")
+                maxSelect.value = min;
+            }
+            // If max changed, set min to max
+            else if (e.target === maxSelect) {
+                toastr.error("Minimum cannot be greater than maximum!")
+                minSelect.value = max;
+            }
+        }
+    }
+});
+/**
+ * Remove Modifier Section
+ */
+function removeModifierGroupAdd(modifierId) {
+    toastr.success("Removing Modifier") 
+    tempArray = tempArray.filter(x => x.id !== modifierId);
+    syncSelectedModifierGroups();
+    $(`#group-${modifierId}`).remove();
+}
+
+/**
+ * Events
+ */
+
+// Checkbox Change Event
+$(document).on("change", ".modifier-checkbox", function () {
+   
+    let checkbox = $(this);
+    let modifierId = parseInt(checkbox.val());
+    console.log("Modifier ID:", modifierId);
+    let modifierName = $(`label[for="${checkbox.attr("id")}"]`).text().trim();
+
+    if (checkbox.is(":checked")) {
+        tempArray.push({ id: modifierId, name: modifierName });
+         toastr.success("Adding Modifier",modifierName) 
+        console.log("tempArray:", tempArray);
+        console.log("Adding Modifier Section:", modifierId, modifierName);
+        addModifierSection(modifierId, modifierName);
+        
+    } else {
+        console.log("Removing Modifier:", modifierId);
+        tempArray = tempArray.filter(x => x.id !== modifierId);
+        removeModifierGroupAdd(modifierId);
+    }
+    syncSelectedModifierGroups();
+});
+
+// Delete Button Event
+$(document).on("click", ".delete-group", function () {
+    let groupId = parseInt($(this).data("group-id"));
+    console.log("Deleting Modifier Group:", groupId);
+    $(`#mod-${groupId}`).prop("checked", false); // Uncheck the corresponding checkbox
+    removeModifierGroupAdd(groupId);
+});
+
+$('#saveButton').on('click', function () {
+    console.log("-----------------------------------");
+    temp2 = [];
+    $('.modifier-group-header').each(function () {
+        let id = $(this).data("groupid");
+        let modjson = {
+            id: id,
+            min: getModifierGroupMin(id),
+            max: getModifierGroupMax(id)
+        };
+        temp2.push(modjson);
+    });
+
+    console.log("Data to Send:_______________", temp2);
+});
+
+
+</script>

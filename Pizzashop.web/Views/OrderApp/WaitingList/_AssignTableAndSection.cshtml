@@ -1,0 +1,166 @@
+@* @model Pizzashop.entity.ViewModels.TableAndSectionViewModel *@
+@model Pizzashop.entity.ViewModels.WaitingUserDetails
+
+<form id="TableSectionAssignForm">
+
+    <div class="modal fade" id="AssignTableAndSection" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="deleteModalLabel">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Assign Table</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="WaitingUserId" asp-for="WaitingUserId">
+                    <input type="hidden" id="form-username" asp-for="@Model.UserName">
+                    <input type="hidden" id="form-noofperson" asp-for="@Model.No_of_Person">
+                    <input type="hidden" id="form-phone" asp-for="@Model.Phone">
+                    <input type="hidden" id="form-email" asp-for="@Model.Email">
+                    <div class="d-flex justify-content-around  gap-3">
+                        <div class="form-floating" style="width: 200px;">
+                            <select class="form-select" aria-label="Floating label select example" id="Section123"
+                                asp-for="SectionId">
+                            </select>
+                            <label for="Section123">Section*</label>
+                        </div>
+                        <div id="TableInputsContainer"></div>
+                        <div class="dropdown " style="">
+                            <button class="btn dropdown-toggle  bg-white p-3 d-flex "
+                                style="border: 1px solid rgb(203, 187, 187); width: 200px;" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" id="selectManyTable">
+                                Table*
+                            </button>
+                            <ul class="dropdown-menu w-75 select-table" aria-labelledby="selectManyTable">
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Assign</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    var tempArrayTable = [];
+
+    $("#Section123").on('change', function () {
+        var sectionId = $(this).val();
+        console.log("__________________", sectionId)
+        AppendTable(sectionId)
+    })
+
+
+
+
+
+    function UpdateSelectTablebar() {
+        let container = $("#TableInputsContainer");
+        container.empty();
+
+        tempArrayTable.forEach(id => {
+            container.append(`<input type="hidden" name="" value="${id}">`);
+        });
+    }
+
+    function updateDropdownTableText() {
+        let button = $("#selectManyTable");
+        if (tempArrayTable.length === 0) {
+            button.text("Select Table");
+        } else {
+            let names = [];
+            $(".table-group-checkbox:checked").each(function () {
+                names.push($(this).data('name'));
+            });
+            button.text(names.join(", "));
+        }
+    }
+
+
+
+    $(document).on("submit", "#TableSectionAssignForm", function (event) {
+        event.preventDefault();
+
+        var WaitingId = $('#WaitingUserId').val();
+        var SectionId = $('#Section123').val();
+        var UserName = $('#form-username').val();
+        var NoOfPerson = $('#form-noofperson').val();
+        var Phone = $('#form-phone').val();
+        var Email = $('#form-email').val();
+
+        if (tempArrayTable.length == 0) {
+            toastr.error("Please select at least one table.");
+            return;
+        }
+        if (SectionId == null) {
+            toastr.error("Please select a section.");
+            return;
+        }
+
+        var FormData = {
+            WaitingUserId: WaitingId,
+            SectionId: SectionId,
+            UserName: UserName,
+            No_of_Person: NoOfPerson,
+            Phone: Phone,
+            Email: Email,
+            SelectedTable: tempArrayTable
+        }
+
+        console.log("....................", FormData);
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/AddAsCustomer",
+            data: FormData,
+            success: function (response) {
+                console.log("sdgdfg", response)
+                $('#AssignTableAndSection').modal('hide');
+                if (response.success == false) {
+                    toastr.error(response.message);
+                } else {
+                    var url = '@Url.Action("MenuApp", "OrderApp")' + '?id=' + response.orderId;
+                    window.location.href = url;
+                    toastr.success(response.message);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                toastr.error(xhr.responseText);
+            }
+        });
+        @* console.log("....................", FormData);
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/TableSectionAssignPost",
+            data: FormData,
+            success: function (response) {
+                console.log("sdgdfg", response)
+                $('#AssignTableAndSection').modal('hide');
+                if (response.success == false) {
+                    toastr.error(response.message);
+                } else {
+                    var url = '@Url.Action("MenuApp", "OrderApp")' + '?id=' + response.orderId;
+                    window.location.href = url;
+                    toastr.success(response.message);
+                }
+              
+            },
+            error: function (xhr, status, error) {
+                toastr.error(xhr.responseText);
+            }
+        }); *@
+
+    });
+
+</script>

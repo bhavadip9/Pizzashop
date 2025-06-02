@@ -1,0 +1,41 @@
+<div class="modal" id="QrCodeModel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <div class="d-flex justify-content-center" id="qr-code"></div>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+    let qr;
+
+    $('#QrCodeModel').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const orderId = button.data('orderid');
+
+        const qrData = `http://localhost:5189/OrderApp/MenuApp/${orderId}`;
+
+        $('#qr-code').empty();
+
+        qr = new QRCode(document.getElementById("qr-code"), {
+            text: qrData,
+            width: 200,
+            height: 200
+        });
+    });
+</script>

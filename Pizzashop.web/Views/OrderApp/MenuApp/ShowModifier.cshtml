@@ -1,0 +1,153 @@
+@model List<Pizzashop.entity.ViewModels.AddItemViewModel>
+@{
+      var orderId=  @ViewBag.orderId;
+    }
+<style>
+    .modifieritemcard{
+border: 1px solid #8f8282;
+    border-radius: 15px;
+    padding: 5px;
+    margin: 5px;
+    height: 77px;
+    width:150px
+    }
+</style>
+<div class="modal fade" id="ModifierItemModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form id="AddModifierinOrder" method="post">
+
+
+                @foreach (var item in @Model)
+                {
+                    <input type="text" asp-for="@item.ItemId" id="ItemIdHidden" hidden>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel" data-taxamount="@ViewBag.TaxAmount">@item.ItemName</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" >
+                        @foreach (var Detail in item.ModifierGroups)
+                        {  <div class=" modifierGroup" data-groupname="@Detail.Name"  data-min="@Detail.Min" data-max="@Detail.Max">
+                            <p class="maxminvalue"><strong>@Detail.Name </strong>(You Can Choose Maximum - @Detail.Max & Minimum - @Detail.Min Option)</p>
+                          <div class="d-flex gap-3"  style="flex-wrap: wrap;">
+@foreach(var Modifier in Detail.ModifierItem)
+                            {              
+                                    <div onclick="selectModifierItem(this,@item.ItemId,@Modifier.ModifierId, @Detail.Max,'@Detail.Name')" class="modifieritemcard border-2 d-flex flex-column position-relative   modifierItem-@Detail.Name" >
+     @if (@ViewBag.foodtype == "Vegetarian")
+                    {
+                        <div class="corner-ribbon bg-success"></div>
+                    }
+                    else if (@ViewBag.foodtype == "Non-Vegetarian")
+                    {
+                        <div class="corner-ribbon bg-danger"></div>
+                    }
+                    else
+                    {
+                        <div class="corner-ribbon bg-warning"></div>
+                    }
+                                <span>@Modifier.ModifierName</span>
+                                <samp>@Modifier.ModifierId</samp>
+                                <span>₹@Modifier.Rate</span>
+                               </div>                              
+                            }
+                            </div>
+                            </div>
+                        }
+                    </div>
+                  
+                }
+
+
+  <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                   @if(orderId!=null && orderId==0){
+   
+                   }else{
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Add</button>
+                   }
+                     
+                        
+                    </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+ 
+
+
+
+ function selectModifierItem(element, itemId, modifierId,maxvalue,groupName) {
+   
+        const modifier = {
+            id: modifierId,
+            name: $(element).find('span:first').text(),
+            price: parseFloat($(element).find('span:last').text().replace('₹', ''))
+        };
+   
+
+const currentSelectedModifiers=$(element).closest('.modifierGroup').find(`.modifieritemcard.selected`).length;
+        if ($(element).hasClass('selected')) {
+           
+            $(element).removeClass('selected');
+            currentModifiers = currentModifiers.filter(m => m.id !== modifierId);
+        }
+        else if(maxvalue<=currentSelectedModifiers) {
+toastr.error("Not selected modifier then maximaum");
+        }else {
+            // Add modifier
+            $(element).addClass('selected');
+            currentModifiers.push(modifier);
+        }
+    }
+
+      $("#AddModifierinOrder").submit(function (e) {
+   
+        e.preventDefault();
+
+
+        let isValid = true;
+ 
+        $(".modifierGroup").each(function () {
+            
+            const groupName = $(this).data("groupname");
+            const min = $(this).data("min");
+            const max = $(this).data("max");
+            const currentSelectedModifiers=$(this).find(`.modifieritemcard.selected`).length;
+ 
+            if (currentSelectedModifiers < min || currentSelectedModifiers > max) {
+                toastr.error("Please select between " + min + " and " + max + " modifiers for group : " + groupName);
+                isValid = false;
+            }
+        });
+ 
+        if (!isValid) {
+            return;
+        }
+
+        const itemName = $("#exampleModalLabel").text();
+        const tax=$("#exampleModalLabel").data("taxamount");
+        console.log(itemName);
+        const itemPrice = parseFloat($(".showModifier[data-itemid='" + currentItemId + "']").find('small').text().replace('₹', ''));
+        toastr.success("Add item in Order");
+ 
+        addToOrder({
+            id: currentItemId,
+            name: itemName,
+            price: itemPrice,
+            othertax:tax,
+            modifiers: currentModifiers,
+            quantity: 1
+        });
+
+        $("#ModifierItemModal").modal('hide');
+    });
+
+
+</script>

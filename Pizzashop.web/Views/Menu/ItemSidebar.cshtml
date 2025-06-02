@@ -1,0 +1,611 @@
+@model Pizzashop.entity.ViewModels.AddPaginationViewmodel<Pizzashop.entity.ViewModels.AddItemViewModel>
+
+
+    <div id="Addpage"></div>
+    <div id="modalBody"></div>
+
+    <div class="table-responsive mt-3" id="itemContainer" >
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input id="selectAllItem" class="form-check-input main-checkbox" type="checkbox"></th>
+                    <th >Name</th>
+                    <th class="text-center">ItemType</th>
+                    <th class="text-center">Rate</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-center">Available</th>
+                     @if((bool)Context.Items["CanAddEdit"] == true || (bool)Context.Items["CanDelete"] == true ){
+
+                <th>Action</th>
+                }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><input value="@item.ItemId" class="form-check-input main-checkbox row-checkbox delete-checkbox-item"
+                                    type="checkbox"></td>
+
+                            <td class="d-flex gap-2  text-center">
+                                <img src="@item.Image" alt="" height="50px" width="50px" class="rounded rounded-circle" style="object-fit: cover;">
+                                <p class="my-auto text-center">@item.ItemName</p>
+                            </td>
+                            <td class="text-center">
+                                @if (item.FoodType == "Non-Vegetarian")
+                                { <img src="~/images/icons/non-veg-icon.svg" alt="Non-Veg" height="20px">
+                                
+                                    
+                                }
+                                else if(item.FoodType=="Vegetarian"){
+                                     <img src="~/images/icons/veg-icon.svg" alt="Veg" height="20px">
+                                }
+                                else
+                                {
+                                    <img src="~/images/icons/vegan-icon.svg" alt="Vegan" height="20px">
+                                }
+                            </td>
+                            <td class="text-center">@item.Price.ToString("F2")₹</td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-center">
+                                <div class="form-check form-switch  d-flex justify-content-center">
+                                    <input class="form-check-input toggle-switch" type="checkbox" @(item.IsAvailable ? "checked"
+                                                                                                                                  : "") disabled>
+                        </div>
+                    </td>
+                    <td class="gap-3">
+                          @if((bool)Context.Items["CanAddEdit"] == true ){
+                        <button class="btn  edit-button" data-item-id="@item.ItemId"><i class="bi bi-pen"
+                               ></i></button>}
+                                 @if((bool)Context.Items["CanDelete"] == true ){
+                        <button class="btn delete-button" data-item-id="@item.ItemId" data-bs-toggle="modal"
+                            data-bs-target="#DeleteItem"><i class="bi bi-trash"></i></button>}
+                    </td>
+                </tr>
+                                }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No records found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Items.Any())
+                {
+         <div>
+<div class="border-0" colspan="10">
+                            <div class="d-flex align-content-center align-items-center justify-content-end">
+                            <span>Items Per page: </span>
+                            <div class="d-flex justify-content-end align-items-center">
+                                <div>
+                                <select class="form-select ms-2 page-list" id="ItemTableSizeSelect" asp-for="PageSize" onchange="paginationItem()">
+                                    <option value="2" selected="@((Model.PageSize == 2) ? "selected" : null)">2</option>
+                                    <option value="5" selected="@((Model.PageSize == 5) ? "selected" : null)">5</option>
+                                    <option value="10" selected="@((Model.PageSize == 10) ? "selected" : null)">10</option>
+                                    <option value="15" selected="@((Model.PageSize == 15) ? "selected" : null)">15</option>
+                                </select>
+                                </div>
+
+                                <div class="ms-3">
+                                    <span>
+                                        Showing 
+                                        <span id="startUser">@((Model.CurrentPage - 1) * Model.PageSize + 1)</span> -
+                                        <span id="endUser">@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)</span> of
+                                        <span id="totalUser">@Model.TotalCount</span>   
+                                    </span>
+                                </div>
+                                <div class="m-2">
+                                <button class="page-link btn bg-primary" id="prev"  onclick="pageChangeItem('prev')" @(Model.CurrentPage
+                                                    == 1 ? "disabled" : "") aria-label="Previous" id="previous_page">
+                                <i class="bi bi-chevron-left text-white" aria-hidden="true"></i>
+                                </button>
+                                </div>
+                                <div class="m-2">
+                                    <button class="page-link btn bg-primary " id="next" onclick="pageChangeItem('next')" @((Model.CurrentPage
+                                                    *Model.PageSize >= Model.TotalCount) ? "disabled" : "") aria-label="Next" id="next_page">
+                                        <i class="bi bi-chevron-right text-white"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+}
+    </div>
+
+
+<partial name="_EditItemPV" model="new Pizzashop.entity.ViewModels.AddItemViewModel()" />
+<partial name="_DeleteItemPV" model="new Pizzashop.entity.ViewModels.AddItemViewModel()" />
+
+
+
+
+    <script>
+ function paginationItem() {
+            var value = parseInt($("#ItemTableSizeSelect").val());
+            ItempageSize = value;
+            let totalPagesItem = Math.ceil(@Model.TotalCount / ItempageSize);
+            if (currentPageItem > totalPagesItem) {
+                currentPageItem = totalPagesItem > 0 ? totalPagesItem : 1;
+            }
+            categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch)
+        }
+
+    function pageChangeItem(pageAction) {
+
+        if (pageAction == 'prev') {
+            currentPageItem = currentPageItem === 1 ? 1 : --currentPageItem;
+        }
+        else {
+            currentPageItem = (currentPageItem * ItempageSize) > @Model.TotalCount ? currentPageItem : ++currentPageItem;
+        }
+        categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch)
+    }
+
+
+        $("#selectAllItem").click(function () {
+            $(".delete-checkbox-item").prop("checked", this.checked);
+        });
+         $(".delete-checkbox-item").change(function () {
+             let totalCheckboxes = $(".delete-checkbox-item").length;
+             let totalChecked = $(".delete-checkbox-item:checked").length;
+
+             $("#selectAllItem").prop('checked', totalCheckboxes === totalChecked);
+        });
+
+
+
+        function populateFormFields(item) {
+
+            console.log("Populating form fields with item data:", item);
+            $('#ItemID').val(item.itemId);
+            $('#CategorySelect').val(item.categoryId);
+            $('#UnitSelectedit').val(item.uintId);
+            $('#editItemName').val(item.itemName);
+            $('#addItemType').val(item.foodType.toString());
+            $('#Price').val(item.price);
+            $('#Quantity').val(item.quantity);
+            $('#IsAvailable').prop('checked', item.isAvailable);
+            $('#IsDefault').prop('checked', item.isDefault);
+            $('#Tax').val(item.tax);
+            $('#shortcode').val(item.shortcode);
+            $('#Descriptionitem').val(item.descriptionitem);
+             $("#profile-image").attr("src", item.image);
+
+        }
+
+
+
+        // Edit button click handler
+        $(".edit-button").click(function () {
+            const itemId = $(this).data('item-id');
+            loadItemData(itemId);
+    });
+
+        // Form submission handler
+        $('#editItemForm').submit(function (e) {
+            e.preventDefault();
+            submitItemUpdate();
+        });
+
+        // Modifier checkbox change handler
+        $(document).on('change', '.modifier-checkbox-edit', function () {
+            
+            const modifierId = parseInt($(this).val());
+            const modifierName = $(this).data('name');
+
+            if ($(this).is(':checked')) {
+                addModifierGroupEdit(modifierId, modifierName);
+            } else {
+                removeModifierGroupEdit(modifierId,modifierName);
+            }
+        });
+
+        // Delete modifier group handler
+        $(document).on('click', '.delete-group-edit', function () {
+           
+            const groupId = parseInt($(this).data('group-id'));
+            const groupname = $(this).data('group-name');
+            $(`#mod-edit-${groupId}`).prop('checked', false);
+            removeModifierGroupEdit(groupId,groupname);
+        });
+
+
+
+
+
+
+        // Load item data for editing
+        function loadItemData(itemId) {
+           
+            showLoading(true);
+
+            $.ajax({
+                url: '/Menu/_EditItemPV',
+                type: 'GET',
+                data: { id: itemId },
+                dataType: 'json',
+                success: function (response) {
+                    console.log("Item data loaded:.........................", response);
+
+                    // Populate form fields
+                    populateFormFields(response);
+
+                    // Load dropdownsuintId
+                    loadUnits(response.uintId);
+                    loadCategories(response.categoryId);
+
+                    // Load modifier groups (both available and selected)
+                    loadAllModifierGroupsForEdit(response.modifierGroups || []);
+
+                    $('#EditItem').modal('show');
+                },
+                error: function (xhr) {
+                    showError('Error loading item: ' + xhr.responseText);
+                },
+                complete: function () {
+                    showLoading(false);
+                }
+            });
+        }
+
+        // Load all modifier groups and mark selected ones
+        function loadAllModifierGroupsForEdit(selectedGroups = []) {
+            $.ajax({
+                url: '/Menu/GetAllModifier',
+                type: 'GET',
+                success: function (allModifiers) {
+                    const dropdownMenu = $('#modifierDropdownEdit');
+                    dropdownMenu.empty();
+
+                    $("#modifierContaineredit").empty();
+
+                    allModifiers.forEach(modifier => {
+                        const isSelected = selectedGroups.some(g => g.id === modifier.modifierGroupId);
+
+                        const listItem = `
+                    <li>
+                        <div class="form-check ms-2">
+                            <input class="form-check-input modifier-checkbox-edit" 
+                                   type="checkbox" 
+                                   id="mod-edit-${modifier.modifierGroupId}"
+                                   value="${modifier.modifierGroupId}"
+                                   data-name="${modifier.groupName}"
+                                   ${isSelected ? 'checked' : ''}>
+                            <label class="form-check-label" for="mod-edit-${modifier.modifierGroupId}">
+                                ${modifier.groupName}
+                            </label>
+                        </div>
+                    </li>`;
+                        dropdownMenu.append(listItem);
+
+                        // If selected, add to our arrays and create section
+                        if (isSelected) {
+                            const selectedGroup = selectedGroups.find(g => g.id === modifier.modifierGroupId);
+                            selectedModifierGroupsEdit.push({
+                                id: modifier.modifierGroupId,
+                                name: modifier.groupName
+                            });
+
+                            addModifierSectionEdit(
+                                modifier.modifierGroupId,
+                                modifier.groupName,
+                                selectedGroup.min || 0,
+                                selectedGroup.max || 0
+                            );
+                        }
+                    });
+                },
+                error: function () {
+                    showError('Error loading modifier groups');
+                }
+            });
+        }
+
+        // Add modifier section to DOM for edit
+        function addModifierSectionEdit(modifierId, modifierName, minValue = 0, maxValue = 0) {
+            $.ajax({
+                url: '/Menu/GetModifierItem',
+                type: 'GET',
+                data: { modifierGroupId: modifierId },
+                dataType: 'json',
+                success: function (items) {
+                    const html = `
+                <div class="modifier-group-container mt-3" id="group-edit-${modifierId}">
+                    <div class="modifier-group-header change-detection d-flex justify-content-between" data-groupid="${modifierId}">
+                        <div>
+                       
+                            <strong class="d-block">${modifierName}</strong>
+                              <small>min</small>
+                            <select class="modifier-qty form-select Minimun2  Minimun-edit-${modifierId}" data-group-id="${modifierId}">
+                                ${generateQuantityOptions(minValue)}
+                            </select>
+                        </div>
+                        <div>
+                            <button class="delete-group-edit btn d-block p-0" data-group-name="${modifierName}" data-group-id="${modifierId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                             <small>max</small>
+                            <select class="modifier-qty  form-select Mximum2   Mximum-edit-${modifierId}" data-group-id="${modifierId}">
+                                ${generateQuantityOptions(maxValue)}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modifier-items">
+                        ${generateModifierItemsHtml(items)}
+                    </div>
+                </div>`;
+
+                    $("#modifierContaineredit").append(html);
+                },
+                error: function () {
+                    showError('Error loading modifier items');
+                }
+            });
+        }
+
+        // Generate quantity select options
+        function generateQuantityOptions(selectedValue) {
+            let options = '';
+            for (let i = 1; i <= 3; i++) {
+                options += `<option value="${i}" ${i == selectedValue ? 'selected' : ''}>${i}</option>`;
+            }
+            return options;
+        }
+
+$(document).on('change',".modifier-qty", function(e) { 
+ 
+    // Check if a min or max select was changed
+    if(e.target.matches('select.Minimun2, select.Mximum2')) { 
+        const groupId = e.target.getAttribute('data-group-id');
+        const minSelect = document.querySelector(`.Minimun-edit-${groupId}`);
+        const maxSelect = document.querySelector(`.Mximum-edit-${groupId}`);
+        let min = parseInt(minSelect.value);
+        let max = parseInt(maxSelect.value);
+        
+        // If min > max, set max = min (or vice versa as desired)
+        if (min > max) {
+            // If min changed, set max to min
+            if (e.target === minSelect) {
+                 toastr.error("Minimum cannot be greater than maximum!")
+                maxSelect.value = min;
+            }
+            // If max changed, set min to max
+            else if (e.target === maxSelect) {
+                 toastr.error("Minimum cannot be greater than maximum!")
+                minSelect.value = max;
+            }
+        }
+    }
+});
+        // Generate HTML for modifier items
+        function generateModifierItemsHtml(items) {
+            return items.map(item => `
+        <div class="modifier-item d-flex justify-content-between">
+            <div><i class="bi bi-dot"></i>${item.modifierName}</div>
+            <div><span class="modifier-price me-3">₹${item.rate}</span></div>
+        </div>`
+            ).join('');
+        }
+
+        // Add a modifier group to edit form
+        function addModifierGroupEdit(modifierId, modifierName) {
+            if (selectedModifierGroupsEdit.some(m => m.id === modifierId)) return;
+
+ toastr.success("Add Modifier",modifierName) 
+            selectedModifierGroupsEdit.push({
+                id: modifierId,
+                name: modifierName
+            });
+
+            addModifierSectionEdit(modifierId, modifierName);
+        }
+
+        // Remove a modifier group from edit form
+        function removeModifierGroupEdit(modifierId,modifierName) {
+           
+             toastr.success("Removing Modifier",modifierName) 
+            selectedModifierGroupsEdit = selectedModifierGroupsEdit.filter(m => m.id !== modifierId);
+            $(`#group-edit-${modifierId}`).remove();
+        }
+
+        function submitItemUpdate() {
+            // Collect modifier settings
+            modifierSettingsEdit = [];
+            $('.modifier-group-header[data-groupid]').each(function () {
+                const id = $(this).data('groupid');
+                modifierSettingsEdit.push({
+                    id: id,
+                    min: $(`.Minimun-edit-${id}`).val(),
+                    max: $(`.Mximum-edit-${id}`).val()
+                });
+            });
+var currentCategoryId=$("#CategorySelect").val()
+
+            var jsondataedit = JSON.stringify(modifierSettingsEdit);
+
+            console.log("Modifier Settings:", modifierSettingsEdit);
+            console.log("JSON Data:", jsondataedit);
+
+            // **Update hidden inputs with data**
+            $('#SelectedModifierGroupIdsEdit').val(selectedModifierGroupsEdit.map(m => m.id).join(','));
+            $('#SelectedModifierGroupJsonEdit').val(jsondataedit);
+
+            showLoading(true);
+
+            $.ajax({
+                url: '/Menu/_EditItemPV',
+                type: 'POST',
+                data: new FormData($('#editItemForm')[0]), 
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    
+                    console.log("Response from server:", response);
+                    if(response.success==false){
+                        showError('Item already exists');
+                        return;
+                    }
+                    if (response) {
+                        showSuccess('Item updated successfully');
+                        $('#EditItem').modal('hide');
+                       // location.reload();
+                        categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+                    }
+
+                },
+                error: function (xhr) {
+                    showError('Error updating item: ' + xhr.responseText);
+                },
+                complete: function () {
+                    showLoading(false);
+                }
+            });
+        }
+
+
+
+
+        // Utility functions
+        function showLoading(show) {
+            if (show) {
+                $('#updateItemBtn').prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+            } else {
+                $('#updateItemBtn').prop('disabled', false).text('Save');
+            }
+        }
+
+        function showSuccess(message) {
+            toastr.success(message);
+        }
+
+        function showError(message) {
+            toastr.error(message);
+            console.error(message);
+        }
+
+        // Load categories dropdown
+        function loadCategories(selectedId) {
+            $.ajax({
+                url: '/Menu/GetAllCategory',
+                type: 'GET',
+                success: function (data) {
+                    const dropdown = $('#CategorySelect');
+                    dropdown.empty();
+
+                    data.forEach(function (category) {
+                        dropdown.append(new Option(category.categoryName, category.categoryId,
+                            category.categoryId == selectedId, category.categoryId == selectedId));
+                    });
+                }
+            });
+        }
+
+        // Load units dropdown
+        function loadUnits(selectedId) {
+            $.ajax({
+                url: '/Menu/GetAllUnit',
+                type: 'GET',
+                success: function (data) {
+
+                    console.log("GetAllUnit.......................jhkjl ",data)
+                    const dropdown = $('#UnitSelectedit');
+
+                    dropdown.empty();
+
+                    data.forEach(function (unit) {
+                        dropdown.append(new Option(unit.unitName, unit.unitId,
+                            unit.unitId == selectedId, unit.unitId == selectedId));
+                    });
+                }
+            });
+        }
+
+
+        // Delete button click handler
+        $('.delete-button').click(function () {
+            console.log("................")
+            var itemId = $(this).data('item-id');
+            console.log(itemId);
+            $('#DeleteItem').submit(function (e) {
+                DeleteItem(itemId);
+            });
+        });
+
+
+        function DeleteItem(itemId) {
+            $.ajax({
+                url: '/Menu/_DeleteItemPV',
+                type: 'POST',
+                data: { id: itemId },
+                success: function (response) {
+                    if (response) {
+                        $('#ItemName').val(response.itemName);
+                        $('#ItemID').val(response.itemId);
+                        $('#DeleteItem').modal('hide');
+                    } else {
+                        alert('Item not found.');
+                    }
+                     categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+                },
+                error: function () {
+                    alert('An error occurred while fetching item details.');
+                }
+            });
+
+        }
+
+
+        function GetItemsForEdit() {
+            $.ajax({
+
+                url: '/Menu/GetAllCategory',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+
+                    var options = '<option value="-1">Category</option>';
+                    $.each(data, function (index, category) {
+                        options += '<option value="' + category.categoryId + '">' + category.categoryName + '</option>';
+                    });
+
+
+                    $("#CategorySelect").html(options);
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    $("#CategorySelect").html('<option value="-1">Failed to load categories</option>');
+                }
+            });
+        }
+        function GetUnitsForEdit() {
+            $.ajax({
+
+                url: '/Menu/GetAllUnit',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log("Response Data:", data);
+
+                    var options = '<option value="-1">Unit</option>';
+                    $.each(data, function (index, unit) {
+                        options += '<option value="' + unit.unitId + '">' + unit.unitName + '</option>';
+                    });
+
+
+                    $("#UnitSelect").html(options);
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    $("#UnitSelect").html('<option value="-1">Failed to load categories</option>');
+                }
+            });
+        }
+
+
+    </script>

@@ -1,0 +1,390 @@
+@using System.Security.Claims;
+@model Pizzashop.entity.ViewModels.DashboardViewModel
+
+
+
+
+    
+<div class="row">
+    <div class="row row-cols-2 row-cols-lg-4 gy-2 gx-3">
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2 d-flex flex-column justify-content-between"
+                style="height: 140px;">
+              
+                <div class="d-flex justify-content-end">
+                    <div class="outer-circle position-relative">
+                        <div class="middle-circle position-relative top-50 start-50 translate-middle">
+                            <div
+                                class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle">
+                                <img src="~/images/icons/total-sales.svg" alt="" height="25px" width="25px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-2 pb-3">
+                    <div class="fs-3">₹@Model.TotalSale.ToString("F2")</div>
+                    <div class="" style="font-size: 15px; color: #727b83;">@ViewBag.Role Total Sales</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2 d-flex flex-column justify-content-between"
+                style="height: 140px;">
+           
+                <div class="d-flex justify-content-end">
+                    <div class="outer-circle position-relative">
+                        <div class="middle-circle position-relative top-50 start-50 translate-middle"
+                            style="border-color: pink;">
+                            <div class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle"
+                                style="background-color: pink;">
+                                <img src="~/images/icons/total-orders.svg" alt="" height="25px" width="25px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-2 pb-2">
+                    <div class="fs-3">@Model.TotalOrder</div>
+                    <div class="" style="font-size: 15px; color: #727b83;">Total Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2 d-flex flex-column justify-content-between"
+                style="height: 140px;">
+               
+                <div class="d-flex justify-content-end">
+                    <div class="outer-circle position-relative">
+                        <div class="middle-circle position-relative top-50 start-50 translate-middle"
+                            style="border-color: rgb(135, 201, 226);">
+                            <div class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle"
+                                style="background-color:  rgb(135, 201, 226);">
+                                <img src="~/images/icons/order-value.svg" alt="" height="25px" width="25px">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-2 pb-3">
+                    <div class="fs-3">₹@Model.AvgTotalOrder.ToString("F2")</div>
+                    <div class="" style="font-size: 15px; color: #727b83;">Avg. Order Value</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2 d-flex flex-column justify-content-between"
+                style="height: 140px;">
+                
+                <div class="d-flex justify-content-end">
+                    <div class="outer-circle position-relative">
+                        <div class="middle-circle position-relative top-50 start-50 translate-middle"
+                            style="border-color: rgb(231, 125, 143);">
+                            <div class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle"
+                                style="background-color: rgb(231, 125, 143);;">
+                                <img src="~/images/icons/waiting-time.svg" alt="" height="25px" width="25px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-2 pb-3">
+                    <div class="fs-3">@Model.AverageWaitingTime.ToString("F2") mins</div>
+                    <div class="" style="font-size: 15px; color: #727b83;">Avg. Waiting Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-xl-2 gy-2 gx-3">
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2">
+                <p class="mb-0 fs-5 fw-semibold px-1">Revenue</p>
+                <div class="" style="height: 300px;">
+                    <canvas id="revenueChart" style="height: 200px; position: relative;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-2">
+                <p class="mb-0 fs-5 fw-semibold px-1">Customer Growth</p>
+                <div class="" style="height: 300px;">
+                    <canvas id="customerGrowthChart" style="height: 200px; position: relative;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
+        class="row row-cols-1 @(Model.Role == "Admin" ? "row-cols-md-2 row-cols-xl-4" : "row-cols-lg-3") row-cols-lg-3 gy-2 gx-3">
+        <div class="col">
+            <div class="bg-white shadow rounded-2 py-2 px-3">
+                <div class="fs-4 mb-2">Top Selling Items</div>
+                <div class="overflow-y-auto" style="height: 200px;">
+
+                    @if (Model.TopSellingItems != null && Model.TopSellingItems.Any())
+                    {
+                        int i = 1;
+                        foreach (var item in Model.TopSellingItems)
+                        {
+                            <div class="d-flex bg-white" style="min-height: 70px;">
+                                <div class="bg-white rounded-3 d-flex justify-content-center align-items-center gap-1">
+                                    #@i
+                                    @{
+                                        string imgUrl = string.IsNullOrEmpty(item.Image) ? "images/dining-menu.png" :
+                                        item.Image;
+                                    }
+                                    <img src="@item.Image" height="50px" width="50px" class="object-fit-fill rounded-3">
+                                </div>
+                                <div class="w-100" style="padding: 6px 10px;">
+                                    <div>@item.Name</div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span><i class="fa-solid fa-bell-concierge"></i></span>
+                                        <p class="mb-0">@item.TotalQuantity Orders</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (i < Model.TopSellingItems.Count)
+                            {
+                                <hr class="m-0">
+                            }
+                            i++;
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 py-2 px-3">
+                <div class="fs-4 mb-2">Least Selling Items</div>
+                <div class="overflow-y-auto" style="height:200px">
+
+                    @if (Model.LeastSellingItems != null && Model.LeastSellingItems.Any())
+                    {
+                        int i = 1;
+                        foreach (var item in Model.LeastSellingItems)
+                        {
+                            <div class="d-flex bg-white" style="min-height: 70px;">
+                                <div class="bg-white rounded-3 d-flex justify-content-center align-items-center gap-1">
+
+                                    #@i
+                                    @* @{
+                                        string imgUrl = string.IsNullOrEmpty(item.Image) ? "images/dining-menu.png" :
+                                        item.Image;
+                                    } *@
+                                    <img src="@item.Image" height="50px" width="50px" class="object-fit-fill rounded-3">
+                                </div>
+                                <div class="w-100" style="padding: 6px 10px;">
+                                    <div>@item.Name</div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span><i class="fa-solid fa-bell-concierge"></i></span>
+                                        <p class="mb-0">@item.TotalQuantity Orders</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (i < Model.LeastSellingItems.Count)
+                            {
+                                <hr class="m-0">
+                            }
+                            i++;
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="bg-white shadow rounded-2 p-3 d-flex flex-column justify-content-between h-100">
+               
+                <div class="d-flex justify-content-end">
+                    <div class="outer-circle position-relative">
+                        <div class="middle-circle position-relative top-50 start-50 translate-middle"
+                            style="border-color: rgb(236, 183, 118);;">
+                            <div class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle"
+                                style="background-color: rgb(236, 183, 118);">
+                               <img src="~/images/icons/waiting-list.svg" alt="" height="25px" width="25px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-2 pb-3">
+                    <div class="fs-3">@Model.WaitingListCount</div>
+                    <div class="" style="font-size: 15px; color: #727b83;">Waiting List Count</div>
+                </div>
+            </div>
+        </div>
+        @if (@Model.Role == "Admin")
+        {
+            <div class="col">
+                <div class="bg-white shadow rounded-2 p-3 d-flex flex-column justify-content-between h-100">
+                   
+                     <div class="d-flex justify-content-end">
+                            <div class="outer-circle position-relative">
+                                <div class="middle-circle position-relative top-50 start-50 translate-middle"
+                                    style="border-color: rgb(235, 141, 69);">
+                                    <div class="inner-circle d-flex align-items-center justify-content-center position-absolute top-50 start-50 translate-middle"
+                                        style="background-color: rgb(235, 141, 69);">
+                                         <img src="~/images/icons/customer.svg" alt="" height="25px" width="25px">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="px-2 pb-3">
+                        <div class="fs-3">@Model.NewCustomerCount</div>
+                        <div class="" style="font-size: 15px; color: #727b83;">New Customer Count</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    function fetchRevenueData(dateRange) {
+        console.log(dateRange);
+        $.ajax({
+            url: '/Home/GetDashboardGraph',
+            type: 'GET',
+            data: { dateRange: dateRange },
+            success: function (response) {
+                revenueData = response.revenueData;
+                mylabels = response.labels;
+                maxRevenue = response.maxRevenue;
+                customerGrowthData = response.customerGrowthData;
+                maxCustomerGrowth = response.maxCustomerGrowth;
+                renderRevenueChart();
+                renderCustomerGrowthChart();
+            }
+        });
+    }
+
+    function renderRevenueChart() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: mylabels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenueData,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#e0e0e0',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#e9e9e9',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: 'black'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: maxRevenue,
+                        grid: {
+                            color: '#e9e9e9',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: 'black',
+                            stepSize: 500
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    function renderCustomerGrowthChart() {
+
+        const ctx = document.getElementById('customerGrowthChart').getContext('2d');
+        const customerGrowthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: mylabels,
+                datasets: [{
+                    label: 'Customer',
+                    data: customerGrowthData,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#e0e0e0',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#e9e9e9',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: 'black'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: maxCustomerGrowth,
+                        grid: {
+                            color: '#e9e9e9',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: 'black',
+                            stepSize: 5
+                        }
+                    }
+                }
+            }
+        });
+    };
+</script>

@@ -1,0 +1,285 @@
+@model Pizzashop.entity.ViewModels.OrderDetailViewModel
+
+<div class="modal modal-dialog-scrollable fade" id="OrderUpdate" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-labelledby="staticBackdropLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Id - #@Model.OrderId</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="OrderUpdateDetailForm">
+
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Item</th>
+                                    <th scope="col">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItem)
+                                {
+
+                                    <tr class="itemrows">
+                                        <td style="border:none" class="kotitemcolumn">
+                                            <div class="d-flex">
+                                                <input type="checkbox" class="kotitemcheckbox" data-id="@item.ItemId">
+                                                <p class="m-0 ms-2 kotitemname" data-id="@item.OrderDetailId">@item.ItemName
+                                                </p>
+                                            </div>
+                                            @if (item.modifier.Count > 0)
+                                            {
+                                                <ul class="m-0">
+                                                    @foreach (var mod in item.modifier)
+                                                    {
+                                                        <li>@mod.ModifierName</li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </td>
+                                        <td class=" d-flex  kotorderquantity m-2 justify-content-around align-items-center"
+                                            style="border:1px solid rgb(67, 65, 65); border-radius: 7px;">
+
+                                            <div class="row m-0 ">
+                                                <div class="col-4 subtractbtn ">
+                                                    <button type="button" class="btn text-primary"><i
+                                                            class="bi bi-dash"></i></button>
+                                                </div>
+                                                <div class="col-4 kotitemquantity text-center m-auto">
+                                                    @if (@ViewBag.status == "ready")
+                                                    {
+                                                        <span id="itemcount" hidden>@item.Prepared</span>
+                                                        <span data-itemid="@item.ItemId" id="itemquatity">@item.Prepared</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span id="itemcount" hidden>@item.Quantity</span>
+                                                        <span data-itemid="@item.ItemId" id="itemquatity">@item.Quantity</span>
+                                                    }
+
+                                                </div>
+                                                <div class="col-4 addbtn">
+                                                    <button type="button" class="btn text-primary"><i
+                                                            class="bi bi-plus-lg"></i></button>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-end">
+                        @if (ViewBag.status == "ready")
+                        {
+                            <button type="submit" class="btn btn-yes btn-primary" id="kotprogressbtn"
+                                data-orderid="@Model.OrderId" data-status="progress">Mark as In Progress</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-yes btn-primary" id="kotpreparedbtn"
+                                data-orderid="@Model.OrderId" data-status="ready">Mark as Prepared</button>
+                        }
+                        <button type="button" class="btn btn-no btn-outline-primary"
+                            data-bs-dismiss="modal">Cancel</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        $(".addbtn").click(function () {
+            let element = $(this).parent().children(".kotitemquantity").children("#itemquatity");
+
+            let max = $(this).parent().children(".kotitemquantity").children("#itemcount").html();
+
+
+            let quantity = parseInt(element.html());
+            if (quantity < max) {
+                quantity++;
+            }
+            element.html(quantity)
+        });
+        $(".subtractbtn").click(function () {
+            let element = $(this).parent().children(".kotitemquantity").children("#itemquatity");
+
+            let quantity = parseInt(element.html());
+            if (quantity > 1) {
+                quantity--;
+            }
+            element.html(quantity)
+        });
+    })
+
+    $("#OrderUpdateDetailForm").on("submit", function (e) {
+        e.preventDefault();
+
+        const $btn = $(this).find(':submit:focus');
+        const orderid = $btn.data("orderid");
+        const status = $btn.data("status");
+        const itemsarr = [];
+
+        // Show loading state
+        $btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Processing');
+
+        // Collect checked items
+        $(".itemrows").each(function () {
+            const $row = $(this);
+            if ($row.find(".kotitemcheckbox").is(':checked')) {
+                itemsarr.push({
+                    detailsid: $row.find(".kotitemname").data("id"),
+                    quantity: $row.find("#itemquatity").text()
+                });
+            }
+        });
+
+        // AJAX call
+        $.ajax({
+            url: '/OrderApp/UpdateOrderItem',
+            method: 'POST',
+            data: {
+                orderId: orderid,
+                status: status,
+                items: itemsarr
+            },
+
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $("#OrderUpdate").modal('hide');
+
+
+                    if (typeof CategoryOrder === 'function') {
+                        CategoryOrder(0, currentPage, pageSize, status);
+                    } else {
+
+                        location.reload();
+                    }
+                } else {
+                    toastr.error(response.message);
+                    $btn.prop("disabled", false).text(status === 'ready' ? 'Mark as Prepared' : 'Mark as In Progress');
+                }
+            },
+            error: function (xhr) {
+                toastr.error("An error occurred: " + xhr.statusText);
+                $btn.prop("disabled", false).text(status === 'ready' ? 'Mark as Prepared' : 'Mark as In Progress');
+            }
+        });
+    });
+
+
+    @* $(document).on("click", "#kotprogressbtn, #kotpreparedbtn", function () {
+
+        let $btn = $(this);
+        console.log($btn);
+        let orderid = $btn.data("orderid");
+        let status = $btn.data("status");
+        let itemsarr = [];
+
+
+        // Use closest() to get the right modal/form section!
+        let itemrows = $btn
+            .closest(".modal-body")
+            .find(".itemrows");
+
+        itemrows.each(function () {
+            let $row = $(this);
+            let checkbox = $row.find(".kotitemcheckbox").first();
+            let detailsid = $row.find(".kotitemname").first().data("id");
+            let quantity = $row.find(".kotitemquantity > #itemquatity").first().html();
+            if (checkbox.is(':checked')) {
+                itemsarr.push({
+                    detailsid: detailsid,
+                    quantity: quantity
+                });
+            }
+        });
+        UpdateOrderItemStatus(orderid, status, itemsarr);
+    });
+
+    function UpdateOrderItemStatus(orderid, status, items) {
+       
+        $.ajax({
+            url: '/OrderApp/UpdateOrderItem',
+            method: 'POST',
+            data: {
+                orderId: orderid,
+                status: status,
+                items: items
+            },
+            success: function (response) {
+               
+                console.log(response, "vvvvvvvvvvvvvvvvv");
+                if (response.success) {
+                    toastr.success(response.message);
+                } else {
+                    toastr.error(response.message);
+                }
+                $("#OrderUpdate").modal('hide');
+
+                location.reload();
+                //CategoryOrder(0, 1, pageSize, status);
+            },
+            error: function (xhr, status, error) {
+                toastr.error("An unexpected error occurred!");
+            }
+        });
+    } *@
+
+        @* $("#OrderUpdateDetailForm").submit(function (event) {
+
+        //  event.preventDefault(); // Prevent the default form submission
+
+        var Name = $('#form-username').val();
+        var Email = $('#form-email').val();
+        var Phone = $('#form-phone').val();
+        var No_of_Person = $('#form-noofperson').val();
+        var TableId = $('#SelectTableID').val();
+        var SectionId = $('#form-sectionid').val();
+        var WaitingId = $('#form-WaitingID').val();
+
+
+
+
+        var FormData = {
+            WaitingUserId: WaitingId,
+            UserName: Name,
+            Email: Email,
+            Phone: Phone,
+            No_of_Person: No_of_Person,
+            SectionId: SectionId,
+            SelectedTable: tempselectedTableIdsforOrder
+        }
+
+        console.log("....................", FormData);
+
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/OrderUpdateDetail",
+            data: FormData,
+            success: function (response) {
+
+                console.log(response);
+                $('#AddAssignPage').modal('hide');
+                //location.reload();
+            },
+            error: function (xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+
+    }); *@
+
+</script>

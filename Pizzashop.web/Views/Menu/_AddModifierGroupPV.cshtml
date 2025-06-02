@@ -1,0 +1,256 @@
+@model Pizzashop.entity.ViewModels.AddModifierGroupViewModel
+
+<form id="addModifierGroupForm" method="post" asp-controller="Menu" asp-action="AddModifierGroup">
+    @* <input type="hidden" asp-for="ModifierGroupId"> *@
+    <input type="hidden" name="SelectedModifierIds" id="selectedModifierIds">
+    <input type="hidden" name="selectedModifierName" id="selectedModifierName">
+
+    <div class="modal fade" id="AddModifierGroup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Modifier Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="ModifierName" type="text" class="form-control hover-effect" placeholder="">
+                        <label asp-for="ModifierName">Name</label>
+                        <span asp-validation-for="ModifierName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="Descriptionmodifier" rows="3" class="form-control hover-effect"
+                            placeholder="" style="height: 100px"></textarea>
+                        <label asp-for="Descriptionmodifier">Description</label>
+                    </div>
+                </div>
+
+                <p class="rounded-2" id="ExistingModi">
+                    <span class="text-primary ms-3 ">+ Add Existing Modifier</span>
+                </p>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+<div class="modal fade" id="ExistingModifier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" id="ExistingModifier form" asp-controller="Menu" asp-action="AddExistingModifier">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Select Existing Modifier </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="modifierSearch" class="form-control" placeholder="Search modifiers...">
+                    </div>
+                    <div class="responsive-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><i class="bi bi-dash-square"></i></th>
+                                    @* <th><input id="selectModifierAll" class="form-check-input main-checkbox"
+                                            type="checkbox"></th> *@
+                                    <th>Name</th>
+                                    <th>Unit</th>
+                                    <th>Rate</th>
+                                    <th>Quantity</th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTable">
+
+                            </tbody>
+
+                        </table>
+
+                        <div class="d-flex justify-content-end mb-2 gap-4">
+                            <div class="d-flex align-items-center flex-row">
+                                <label for="pageSizeSelect" class="me-2">Items per page:</label>
+                                <select id="pageSizeSelect" class="form-select w-auto " style="height: 35px;">
+                                    <option value="2" selected>2</option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+
+                            <div id="paginationContainer" class="d-flex justify-content-center mt-3"></div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-white border border-primary"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    $('#addModifierGroupForm').submit(function () {
+        let selectedIds = selectedModifiers.map(item => item.id);
+        let selectedNames = selectedModifiers.map(item => item.name);
+        console.log("Select Modifier ", selectedIds);
+        console.log("Select Modifier ", selectedNames);
+        $('#selectedModifierIds').val(selectedIds.join(','));
+        $('#selectedModifierName').val(selectedNames.join(','));
+
+        @* console.log("Selected Modifier IDs: ", $('#tabsContainer'));
+        $('#tabsContainer').show();
+        new bootstrap.Tab($('#tab-item')[0]).show(); *@
+
+    });
+
+    let tempSelectedModifiers = [];
+    let selectedModifiers = [];
+
+    $('#ExistingModi').click(function () {
+        $('#ExistingModifier').modal('show');
+        let selectedSize = parseInt($('#pageSizeSelect').val());
+        ExistingModifierItem(1, selectedSize);
+    });
+
+    $(document).on('change', '.selectItemCheckbox', function () {
+        let itemId = $(this).data('item-id');
+        let itemName = $(this).data('item-name');
+
+        if ($(this).is(':checked')) {
+            if (!tempSelectedModifiers.some(item => item.id === itemId)) {
+                tempSelectedModifiers.push({ id: itemId, name: itemName });
+            }
+        } else {
+            tempSelectedModifiers = tempSelectedModifiers.filter(item => item.id !== itemId);
+        }
+    });
+
+
+    $('#ExistingModifier form').submit(function (event) {
+        event.preventDefault();
+        selectedModifiers = [...tempSelectedModifiers];
+        updateSelectedModifiersDisplay();
+        $('#ExistingModifier').modal('hide');
+    });
+
+
+    function ExistingModifierItem(page = 1, size = 2, searchQuery = '') {
+        $.ajax({
+            url: `/Menu/AddExistingModifier?page=${page}&pageSize=${size}&search=${encodeURIComponent(searchQuery)}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+                if (response.data && response.data.length > 0) {
+                    let itemsHtml = '';
+
+                    $.each(response.data, function (index, item) {
+                        let isChecked = selectedModifiers.some(mod => mod.id === item.modifierId) ? 'checked' : '';
+
+                        itemsHtml += `<tr>
+                        <td><input type="checkbox" class="selectItemCheckbox" data-item-name="${item.modifierName}" data-item-id="${item.modifierId}" ${isChecked}></td>
+                        <td> ${item.modifierName}</td>
+                        <td>${item.unitId}</td>
+                        <td>${item.rate}</td>
+                        <td>${item.quantity}</td>
+                    </tr>`;
+                    });
+
+                    $('#itemsTable').html(itemsHtml);
+                    generatePagination(response.totalItems, response.page, response.pageSize);
+                } else {
+                    $('#itemsTable').html('<tr><td colspan="5">No items available.</td></tr>');
+                    $('#paginationContainer').html('');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+            }
+        });
+    }
+
+    function generatePagination(totalItems, currentPage, pageSize) {
+        let totalPages = Math.ceil(totalItems / pageSize);
+        let paginationHtml = '<nav><ul class="pagination">';
+
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="ExistingModifierItem(${i}, ${pageSize}); return false;">${i}</a>
+        </li>`;
+        }
+
+        paginationHtml += '</ul></nav>';
+        $('#paginationContainer').html(paginationHtml);
+    }
+
+
+    function updateSelectedModifiersDisplay() {
+        let selectedHtml = '';
+
+        if (selectedModifiers.length > 0) {
+            selectedHtml = '<ul class="d-flex flex-wrap gap-3">';
+            selectedModifiers.forEach(item => {
+                selectedHtml += `
+                <li class="d-flex border-2 border-dark me-2 p-2 gap-3 mt-2" style="align-items: center; border: 1px solid #000; border-radius: 500px;">
+                   ${item.name} 
+                    <span class="removeModifier " data-item-id="${item.id}" style="cursor:pointer;"> X </span>
+                </li>`;
+            });
+            selectedHtml += '</ul>';
+        } else {
+            selectedHtml = '<p>No modifiers selected.</p>';
+        }
+
+        $('#ExistingModi').html(`
+        <span class="text-primary">+ Add Existing Modifier (${selectedModifiers.length})</span>
+        ${selectedHtml}
+    `);
+    }
+
+    $(document).on('click', '.removeModifier', function () {
+        let itemId = $(this).data('item-id');
+
+        selectedModifiers = selectedModifiers.filter(item => item.id !== itemId);
+        tempSelectedModifiers = tempSelectedModifiers.filter(item => item.id !== itemId);
+
+        updateSelectedModifiersDisplay();
+        @* setTimeout(() => {
+           // $('#ExistingModifier').modal('show');
+            let selectedSize = parseInt($('#pageSizeSelect').val());
+            ExistingModifierItem(1, selectedSize);
+        }, 300); *@
+    });
+
+    $('#pageSizeSelect').change(function () {
+        let selectedSize = parseInt($(this).val());
+        ExistingModifierItem(1, selectedSize);
+    });
+
+    $('#modifierSearch').on('keyup', function () {
+        let searchQuery = $(this).val().trim();
+        ExistingModifierItem(1, parseInt($('#pageSizeSelect').val()), searchQuery);
+    });
+
+</script>

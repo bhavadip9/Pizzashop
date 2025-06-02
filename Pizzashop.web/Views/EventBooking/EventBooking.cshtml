@@ -1,0 +1,248 @@
+@model Pizzashop.entity.ViewModels.AddEventVM
+
+@{
+    ViewData["Title"] = "Add Event";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div>
+    <div class="d-flex flex-row justify-content-between">
+        <h1 class="text-primary fw-bold">Add New Event</h1>
+        <div class="d-flex flex-row gap-3">
+            <button class="d-flex justify-content-center bg-primary-subtle rounded-2 align-items-center gap-2"
+                style="height: 40px;">
+                <a asp-action="Index" class="d-flex text-decoration-none text-black gap-2"><i
+                        class="bi bi-chevron-left"></i>
+                    <p class="m-auto">Back</p>
+                </a>
+            </button>
+        </div>
+    </div>
+    <form asp-action="AddEvent" class="form-control shadow px-5" method="post">
+        <div class="d-flex flex-row gap-4 my-3 pt-5">
+            <div class="col-4 form-floating">
+                <input type="date" asp-for="EventDate" id="fromDate" class="form-control" placeholder="Start Date">
+                <label id="name">Event Date</label>
+                <span asp-validation-for="EventDate" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="col-4 form-floating">
+                <select id="roleDropdown" class="form-select" asp-for="EventId" onchange="toggleOtherEventName(this)">
+                    <option value="1">Birthday Party</option>
+                    <option value="2">Kitty Party</option>
+                    <option value="3">Kids Party</option>
+                    <option value="4">Other</option>
+                </select>
+                <label for="roleDropdown">Event Type</label>
+            </div>
+            <div class="col-4 form-floating" id="otherEventNameDiv" style="display: none;">
+                <input type="text" asp-for="EventName" id="otherEventName" class="form-control"
+                    placeholder="Enter Event Name">
+                <label for="otherEventName">Enter Event Name</label>
+                <span asp-validation-for="EventName" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-row gap-4 ">
+            <div class="col-4 form-floating">
+                <input type="time" asp-for="StartTime" name="appointment" min="09:00" max="21:00" required
+                    class="form-control" />
+                <label for="roleDropdown">Event Start time</label>
+            </div>
+            <div class="col-4 form-floating">
+                <input type="time" asp-for="EndTime" name="appointment" min="09:00" max="21:00" required
+                    class="form-control" />
+                <label for="roleDropdown">Event End time</label>
+            </div>
+            <div class="col-4 form-floating">
+                <input type="number" asp-for="No_of_Person" id="fromDate" class="form-control" placeholder="Start Date">
+                <label id="name">Number of Person</label>
+                <span asp-validation-for="No_of_Person" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-row gap-4 mt-3">
+            <div class="col-4 form-floating">
+                <select id="roleDropdown" class="form-select" asp-for="OrderType">
+                    <option value="">Select Order Type</option>
+                    <option value="1">Dine In</option>
+                    <option value="2">Take Away</option>
+                </select>
+                <label for="roleDropdown">Order Type</label>
+            </div>
+            <div class="form-check form-switch ms-3">
+                <h4>
+                    <input class="form-check-input toggle-switch" asp-for="AC_Non_AC" type="checkbox" role="switch">
+                </h4>
+                <label class="form-check-label" for="addAvailable">AC/Non-AC</label>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="d-flex flex-row gap-4 mt-3 justify-content-end">
+            <button type="submit" class="btn btn-primary">CheckAvailable</button>
+            <button type="reset" class="btn btn-outline-primary"> Reset </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleOtherEventName(selectElement) {
+        
+        const otherEventNameDiv = document.getElementById('otherEventNameDiv');
+        if (selectElement.value === "4") { // "Other" option selected
+            otherEventNameDiv.style.display = "flex";
+        } else {
+            otherEventNameDiv.style.display = "none";
+        }
+    }
+</script>
+@* <div class=" me-5">
+
+    <div class="d-flex flex-row justify-content-between">
+        <h1 class="text-primary fw-bold">Add User</h1>
+        <div class="d-flex flex-row gap-3">
+
+            <button class="d-flex justify-content-center bg-primary-subtle rounded-2 align-items-center gap-2"
+                style="height: 40px;">
+                <a asp-action="UserList" class="d-flex text-decoration-none text-black gap-2"><i
+                        class="bi bi-chevron-left"></i>
+                    <p class="m-auto">Back</p>
+                </a>
+
+            </button>
+        </div>
+    </div>
+
+
+    <form asp-action="AddUser" class="form-control shadow px-5" enctype="multipart/form-data" asp-antiforgery="true"
+        method="post">
+        <div class="d-flex flex-row gap-4 my-3 pt-5">
+            <div class="col-6 form-floating">
+                <input asp-for='FirstName' type="text" class="form-control" id="name" placeholder="">
+                <label id="name">First Name</label>
+                <span asp-validation-for="FirstName" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="col-6 form-floating">
+                <input asp-for='LastName' type="text" class="form-control hover-effect" id="name" placeholder="">
+                <label asp-for='LastName'>Last Name</label>
+                <span asp-validation-for="LastName" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+        </div>
+        <div class="d-flex flex-row my-3 gap-4 my-2">
+            <div class=" col-6 form-floating">
+                <input type="text" class="form-control hover-effect" asp-for='UserName' placeholder="">
+                <label asp-for='UserName'>User Name</label>
+                <span asp-validation-for="UserName" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="form-floating col-6">
+                <select id="roleDropdown" class="form-select" name="RoleId" asp-for="RoleId">
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-row my-3 gap-4">
+            <div class=" col-6 form-floating">
+                <input type="email" class="form-control hover-effect" asp-for="Email" placeholder="">
+                <label asp-for="Email">Email</label>
+                <span asp-validation-for="Email" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+            <div class=" col-6">
+                <div class=" baricon1 password-box">
+                    <input type="password" asp-for="Password" class="searchbaricon1" id="password"
+                        placeholder="Password">
+                    <i class="bi bi-eye-fill eye-icon me-3" onclick="togglePassword()"></i>
+                </div>
+                <span asp-validation-for="Password" class="text-danger text-start"
+                    style=" font-size:small; font-family:Noto Sans;"></span>
+            </div>
+        </div>
+
+        <div class="row mt-2 mb-3 ms-lg-1">
+            <div class="rounded col-12 form-control pt-4 pb-4 d-flex align-items-center justify-content-center ">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <h3><i class="bi bi-cloud-arrow-up"></i></h3>
+
+                    <label for="formfile" class="form-label text-center ">
+                        <div id="upload-btn"></div>
+                        <img src="images/cloud-upload-icon.svg" alt="">Browse Files
+                    </label>
+
+                    <input type="file" class="form-control d-none" id="formfile" asp-for="FormFile"
+                        accept="image/png, image/gif, image/jpeg" onchange="preview()">
+                    <span asp-validation-for="FormFile" class="text-danger text-start "
+                        style=" font-size:small; font-family:Noto Sans; "></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex pb-3 gap-1">
+            <div class="form-floating  m-auto col-4">
+                <select id="countryDropdown" class="form-select" asp-for="CountryName" name="CountryId"
+                    onchange="loadStates(this.value)">
+                </select>
+                <span asp-validation-for="CountryId" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="form-floating  m-auto col-4">
+                <select id="stateDropdown" class="form-select" asp-for="StateName" name="StateId"
+                    onchange="loadCities(this.value)">
+                    <option value="">State</option>
+                </select>
+                <span asp-validation-for="StateId" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+
+            <div class="form-floating  m-auto col-4">
+                <select id="cityDropdown" class="form-select" asp-for="CityName" name="CityId">
+                    <option value="">City</option>
+                </select>
+                <span asp-validation-for="CityId" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+        </div>
+        <div class="d-flex gap-1">
+            <div class=" m-auto col-4 form-floating">
+                <input type="text" class="form-control hover-effect" asp-for='ZipCode' placeholder="">
+                <label asp-for='ZipCode'>Zipcode</label>
+                <span asp-validation-for="ZipCode" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+            <div class=" m-auto col-4 form-floating">
+                <input type="text" class="form-control hover-effect" asp-for='Address' placeholder="">
+                <label asp-for='Address'>Address</label>
+                <span asp-validation-for="Address" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+            <div class=" m-auto col-4 form-floating">
+                <input type="text" class="form-control hover-effect" asp-for='Phone' placeholder="">
+                <label asp-for='Phone'>Phone</label>
+                <span asp-validation-for="Phone" class="text-danger text-start "
+                    style=" font-size:small; font-family:Noto Sans; "></span>
+            </div>
+        </div>
+
+        <div class="d-flex">
+            <div class="btn-group gap-3 pb-4 pt-4 mx-auto">
+                <button type="submit" name="submitButton" class="btn btn-primary active" aria-current="page"
+                    value="Send">Create
+                    User</button>
+                <a asp-action="UserList" class="btn btn-outline-primary">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div> *@

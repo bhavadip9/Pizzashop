@@ -1,0 +1,26 @@
+@model Pizzashop.entity.ViewModels.AddModifierGroupViewModel
+
+
+<div class="modal fade" id="DeleteModifierGroup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="DeleteGroupModifier" method="post" >
+            <input type="hidden" id="modifiergroupDelete" >
+            <input type="hidden" asp-for="ModifierGroupId" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body justify-content-center align-items-center d-flex flex-column">
+                    <img src="~/images/toppng.com-warning-icon-2400x2400.png" alt="Warning" height="40" width="40">
+                    <p>Are you sure you want to delete ModifierGroup: <strong id="ModifierGroupName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger" id="DeleteModifiergroupbutton">Yes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

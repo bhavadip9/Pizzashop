@@ -1,0 +1,155 @@
+@model List<Pizzashop.entity.ViewModels.WaitingUserDetails>
+
+<div class="table-responsive mt-3">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <th>
+                Token Id
+            </th>
+            <th>
+                Created At
+            </th>
+            <th>
+                Waiting time
+            </th>
+            <th>Name</th>
+            <th>No. of Person</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>
+                Action
+            </th>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+
+
+                @foreach (var item in @Model)
+                {
+
+                    <tr id="tabpanel-item-@item.SectionId">
+                        <td>#@item.WaitingUserId</td>
+                        <td>@item.CreateTime</td>
+                        <td class="live-time-waiting" data-time="@item.CreateTime.ToString("o")"></td>
+                        <td>@item.UserName</td>
+                        <td>@item.No_of_Person</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td>
+                            <button class="btn EditWaitingUserButton" data-section-id="@item.SectionId"
+                                data-item-id="@item.WaitingUserId"><i class="bi bi-pen"></i></button>
+                            <button class="btn" data-bs-target="#DeleteWaitingToken" data-bs-toggle="modal"
+                                onclick="DeleteWaitingModal(@item.WaitingUserId)"><i class="bi bi-trash"></i></button>
+                            <button class="btn tableAndSectionAssignButton" data-section-id="@item.SectionId"
+                                data-item-id="@item.WaitingUserId" data-username="@item.UserName"
+                                data-total-person="@item.No_of_Person" data-phone="@item.Phone" data-email="@item.Email"><i
+                                    class="bi bi-person-check"></i></button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center p-3">No Any Waiting User.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="tableandsection"></div>
+<div id="editWaitingUser"></div>
+
+<script>
+    $(".EditWaitingUserButton").on('click', function () {
+        var WaitingUserId = $(this).data('item-id');
+        var sectionId = $(this).data('section-id')
+
+
+
+        $.ajax({
+            url: "/OrderApp/EditWaitingUser",
+            type: "GET",
+            data: { WaitingUserId: WaitingUserId },
+            success: function (data) {
+                GetAllSectionEdit(sectionId);
+                $("#editWaitingUser").html(data);
+                $("#EditUserWaitingList").modal('show');
+            }
+        })
+    })
+
+    $(".tableAndSectionAssignButton").on('click', function () {
+        var WaitingUserId = $(this).data('item-id')
+        var sectionId = $(this).data('section-id')
+        var UserName = $(this).data('username')
+        var TotalPerson = $(this).data('total-person')
+        var Phone = $(this).data('phone')
+        var Email = $(this).data('email')
+
+
+
+        // var form = $("#AssignTableAndSectionForm");
+        console.log("..............", WaitingUserId)
+        $.ajax({
+            url: "/OrderApp/TableSectionAssign",
+            type: "GET",
+            data: {
+                WaitingUserId: WaitingUserId,
+                sectionId: sectionId,
+                Email: Email,
+                UserName: UserName,
+                TotalPerson: TotalPerson,
+                Phone: Phone
+            },
+            success: function (data) {
+                GetAllSelectSection(sectionId);
+                AppendTable(sectionId);
+                $("#tableandsection").html(data);
+                $("#AssignTableAndSection").modal('show');
+            }
+        })
+    })
+
+    $(document).ready(function () {
+        function updateWaitingTime() {
+
+            $(".live-time-waiting").each(function () {
+
+                var dateString = "";
+                var time = $(this).data("time");
+                if (!time) {
+                    $(this).text("0 Min");
+                    return;
+                }
+                var date1 = new Date(time);
+                var date2 = new Date();
+                var diff = date2.getTime() - date1.getTime();
+                var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff -= days * (1000 * 60 * 60 * 24);
+                if (days > 0) {
+                    dateString += days + " days ";
+                }
+                var hours = Math.floor(diff / (1000 * 60 * 60));
+                diff -= hours * (1000 * 60 * 60);
+                if (hours > 0) {
+                    dateString += hours + " hours ";
+                }
+                var mins = Math.floor(diff / (1000 * 60));
+                diff = diff - mins * (1000 * 60);
+                if (mins > 0) {
+                    dateString += mins + " min ";
+                }
+                var seconds = Math.floor(diff / (1000));
+                diff -= seconds * (1000);
+                dateString += seconds + " sec";
+                $(this).text(dateString);
+            });
+        }
+
+        setInterval(updateWaitingTime, 1000);
+    });
+
+</script>

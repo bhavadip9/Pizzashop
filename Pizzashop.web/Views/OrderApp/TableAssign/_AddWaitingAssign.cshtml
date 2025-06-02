@@ -1,0 +1,197 @@
+@model Pizzashop.entity.ViewModels.AddWaitingAssignViewModel
+<!-- Modal -->
+<div class="modal fade" id="AddAssignPage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-slideout" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="exampleModalLabel">Waiting List</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span>×</span>
+                </button>
+
+            </div>
+            <div class="modal-body">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>No. of Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in @Model.WaitingUserList)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="radio" class="form-check-input select-item" data-email="@item.Email"
+                                        data-username="@item.UserName" data-phone="@item.Phone"
+                                        data-noofperson="@item.No_of_Person" data-sectionid="@item.SectionId"
+                                        data-tokenid="@item.WaitingUserId" id="exampleCheck1">
+                                </td>
+                                <td>@item.WaitingUserId</td>
+                                <td>@item.UserName</td>
+                                <td>@item.No_of_Person</td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+
+                <div>
+                    <h1 class="text-primary">
+                        Customer Details
+                    </h1>
+                    <div>
+                        <form id="AddAsCustomerForm" class="">
+                            <input type="text" id="form-WaitingID" class="form-control hover-effect" placeholder=""
+                                hidden>
+
+                            <div class="form-floating mb-3">
+                                <input type="email" id="form-email" class="form-control hover-effect" placeholder="">
+                                <label>Email</label>
+
+                            </div>
+                            <div class="  form-floating mb-3">
+                                <input type="text" id="form-username" class="form-control hover-effect" placeholder="">
+                                <label>Name</label>
+
+                            </div>
+                            <div class=" form-floating mb-3">
+                                <input type="text" id="form-phone" class="form-control hover-effect" placeholder="">
+                                <label>Phone</label>
+
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <div class=" form-floating mb-3">
+                                    <input type="text" id="form-noofperson" class="form-control hover-effect"
+                                        placeholder="">
+                                    <label>No. of Person</label>
+
+                                </div>
+                                <input type="hidden" id="form-sectionid" asp-for="SectionId" class="form-control hover-effect"
+                                    placeholder="">
+                                <div class="form-floating " style="width: 200px;">
+                                    <select class="form-select" aria-label="Floating label select example"
+                                        id="SectionSelectID123" disabled >
+                                    </select>
+                                    <label for="SectionSelectID123">Section*</label>
+                                </div>
+
+                            </div>
+                            <div class="d-flex justify-content-end gap-3 mt-3"> <button type="button"
+                                    class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Assign</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        // Select all checkboxes with the class 'select-item'
+        let checkboxeselect = document.querySelectorAll('.select-item');
+
+        checkboxeselect.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                // If the checkbox is selected, populate the form
+                if (this.checked) {
+                    document.getElementById('form-email').value = this.dataset.email || '';
+                    document.getElementById('form-username').value = this.dataset.username || '';
+                    document.getElementById('form-phone').value = this.dataset.phone || '';
+                    document.getElementById('form-noofperson').value = this.dataset.noofperson || '';
+                    document.getElementById('form-sectionid').value = this.dataset.sectionid || '';
+                    document.getElementById('form-WaitingID').value = this.dataset.tokenid || '';
+                } else {
+                    // Clear form if the checkbox is unchecked
+                    document.getElementById('form-email').value = '';
+                    document.getElementById('form-username').value = '';
+                    document.getElementById('form-phone').value = '';
+                    document.getElementById('form-noofperson').value = '';
+                    document.getElementById('form-sectionid').value = '';
+                    document.getElementById('form-WaitingID').value = '';
+                }
+
+                // Uncheck other checkboxes (single selection behavior)
+                checkboxeselect.forEach(cb => {
+                    if (cb !== this) {
+                        cb.checked = false;
+                    }
+                });
+            });
+        });
+    });
+
+
+
+
+
+    $("#AddAsCustomerForm").submit(function (event) {
+
+        event.preventDefault(); // Prevent the default form submission
+
+        var Name = $('#form-username').val();
+        var Email = $('#form-email').val();
+        var Phone = $('#form-phone').val();
+        var No_of_Person = $('#form-noofperson').val();
+        var TableId = $('#SelectTableID').val();
+        var SectionId = $('#form-sectionid').val();
+        var WaitingId = $('#form-WaitingID').val();
+
+        if (No_of_Person < 0) {
+            toastr.error("No of Person must be greater than 1.");
+        }
+        if (SectionId < 0) {
+            toastr.error("Select Section.");
+        }
+
+        debugger;
+        var FormData = {
+            WaitingUserId: WaitingId,
+            UserName: Name,
+            Email: Email,
+            Phone: Phone,
+            No_of_Person: No_of_Person,
+            SectionId: SectionId,
+            SelectedTable: tempselectedTableIdsforOrder
+        }
+
+
+        $.ajax({
+            type: "POST",
+            url: "/OrderApp/AddAsCustomer",
+            data: FormData,
+            success: function (response) {
+
+                console.log(response);
+                $('#AddAssignPage').modal('hide');
+                if (response.success == false) {
+                    toastr.error(response.message);
+                } else {
+                    var url = '@Url.Action("MenuApp", "OrderApp")' + '?id=' + response.orderId;
+                    window.location.href = url;
+                    toastr.success(response.message);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+
+    });
+
+</script>

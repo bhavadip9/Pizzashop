@@ -1,0 +1,191 @@
+ 
+    @model Pizzashop.entity.ViewModels.AddPaginationViewmodel<Pizzashop.entity.ViewModels.OrderViewModel>;
+
+<style>
+    .orange {
+        color: orange;
+    }
+</style>
+
+<div  class="" id="Body">
+
+
+<table class="table ">
+    <thead class="border-dark">
+        <th scope="col">#Order
+              @if (ViewBag.SortByOrderId == "dec_name")
+        {
+            <i class="SortByOrderId bi bi-arrow-down" style="cursor: pointer;" data-sortbyorderid="asc_name"></i>
+        }
+        else if (ViewBag.SortByOrderId == "asc_name")
+        {
+            <i class="SortByOrderId bi bi-arrow-up" style="cursor: pointer;" data-sortbyorderid="dec_name"></i>
+        }
+        else
+        {   
+            @* <i class="SortByOrderId bi bi-arrow-down" data-sortbyorderid="dec_name"></i> *@
+            <i class="SortByOrderId bi bi-arrow-up " style="cursor: pointer;" data-sortbyorderid="asc_name"></i>
+        }
+        </th>
+        <th scope="col">Date
+                 @if (ViewBag.SortByOrderDate == "dec_name")
+        {
+            <i class="SortByOrderDate bi bi-arrow-down" style="cursor: pointer;" data-sortbydate="asc_name"></i>
+        }
+        else if (ViewBag.SortByOrderDate == "asc_name")
+        {
+            <i class="SortByOrderDate bi bi-arrow-up" style="cursor: pointer;" data-sortbydate="dec_name"></i>
+        }
+        else
+        {  
+            <i class="SortByOrderDate bi bi-arrow-down" style="cursor: pointer;" data-sortbydate="dec_name"></i>
+            <i class="SortByOrderDate bi bi-arrow-up" style="cursor: pointer;" data-sortbydate="asc_name"></i>
+        }
+        </th>
+        <th scope="col">Customer</th>
+        <th scope="col">Status</th>
+        <th scope="col">Payment Mode</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Total Amount
+        </th>
+        <th scope="col">Action</th>
+    </thead>
+    <tbody >
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            @foreach (var order in Model.Items)
+            {
+                <tr>
+                    <td>#@order.OrderId</td>
+                    <td>@order.OrderDate.ToString("M/d/yyyy")</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.OrderStatus</td>
+                    <td>@order.PaymentMethod</td>
+
+                    <td>
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            if (i < order.Rating)
+                            {
+                                <i class="bi bi-star-fill orange"></i>   
+                            }
+                            else
+                            {
+                                <i class="bi bi-star orange"></i>   
+                            }
+                        }
+                    </td>
+                    <td>₹@order.TotalAmount</td>
+                    <td class="gap-4">
+                      
+                        <a class=" text-dark" asp-action="DownloadInvoice" asp-controller="Order" asp-route-id="@order.OrderId">
+                             <i class="bi bi-filetype-pdf"></i>
+                        </a>
+                       <a class="text-dark" asp-action="OrderDetail" asp-controller="Order" asp-route-OrderId="@order.OrderId">
+                        <i class="bi bi-eye"></i>
+                       </a>
+                       
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="12" class="text-center">No records found.</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+ @if (Model.Items.Any())
+        {
+ <div>
+<div class="border-0" colspan="10">
+                            <div class="d-flex align-content-center align-items-center justify-content-end">
+                            <span>Items Per page: </span>
+                            <div class="d-flex justify-content-end align-items-center">
+                                <div>
+                                <select class="form-select ms-2 page-list" id="ordertableSizeSelect" asp-for="PageSize" onchange="paginationOrder()">
+                                    <option value="2" selected="@((Model.PageSize == 2) ? "selected" : null)">2</option>
+                                    <option value="5" selected="@((Model.PageSize == 5) ? "selected" : null)">5</option>
+                                    <option value="10" selected="@((Model.PageSize == 10) ? "selected" : null)">10</option>
+                                    <option value="15" selected="@((Model.PageSize == 15) ? "selected" : null)">15</option>
+                                </select>
+                                </div>
+
+                                <div class="ms-3">
+                                    <span>
+                                        Showing 
+                                        <span id="startUser">@((Model.CurrentPage - 1) * Model.PageSize + 1)</span> -
+                                        <span id="endUser">@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)</span> of
+                                        <span id="totalUser">@Model.TotalCount</span>   
+                                    </span>
+                                </div>
+                                <div class="m-2">
+                                <button class="page-link btn bg-primary" id="prev"  onclick="pageChangeOrder('prev')" @(Model.CurrentPage
+                                                    == 1 ? "disabled" : "") aria-label="Previous" id="previous_page">
+                                <i class="bi bi-chevron-left text-white" aria-hidden="true"></i>
+                                </button>
+                                </div>
+                                <div class="m-2">
+                                    <button class="page-link btn bg-primary " id="next" onclick="pageChangeOrder('next')" @((Model.CurrentPage
+                                                    *Model.PageSize >= Model.TotalCount) ? "disabled" : "") aria-label="Next" id="next_page">
+                                        @* <i class="fa-solid fa-forward" aria-hidden="true"></i> *@
+                                        <i class="bi bi-chevron-right text-white"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+    }
+</div>
+
+
+
+<script>
+
+
+    $(".SortByOrderId").on('click',  function () {
+       
+    var orderbyorderid = $(this).data('sortbyorderid');
+   OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+   
+});
+$(".SortByOrderDate").on('click', function () {
+   
+    var orderbyorderdate = $(this).data('sortbydate'); 
+    OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+   
+});
+
+
+ $("#downloadPdf").click(function () {
+    console.log("downloadPdf clicked");
+              window.location.href = "/Order/OrderAsPdf";
+       });
+   
+       function paginationOrder() {
+            var value = parseInt($("#ordertableSizeSelect").val());
+            OrderpageSize = value;
+            let totalPagesOrder = Math.ceil(@Model.TotalCount / OrderpageSize);
+            if (currentPageOrder > totalPagesOrder) {
+                currentPageOrder = totalPagesOrder > 0 ? totalPagesOrder : 1;
+            }
+           OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+        }
+
+    function pageChangeOrder(pageAction) {
+
+        if (pageAction == 'prev') {
+            currentPageOrder = currentPageOrder === 1 ? 1 : --currentPageOrder;
+        }
+        else {
+            currentPageOrder = (currentPageOrder * OrderpageSize) > @Model.TotalCount ? currentPageOrder : ++currentPageOrder;
+        }
+       OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+    }
+</script>

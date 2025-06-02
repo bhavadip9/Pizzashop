@@ -1,0 +1,81 @@
+@model Pizzashop.entity.ViewModels.UserListViewModel
+
+@{
+    ViewData["Title"] = "Userlist";
+}
+
+
+<div class=" me-3">
+
+    <div class="d-flex flex-row justify-content-between me-4">
+        <h1 class=" fw-bold" style="color: #0077cc;">User</h1>
+        <div class="d-flex flex-row gap-3 mt-3">
+
+            <div class="input-group " style="width: 60%;">
+                <input type="search" name="search " id="search-user" placeholder="Search"
+                    class="form-control border-end-0">
+                <span class="input-group-text bg-white border-start-0 d-md-block d-none">
+                    <i class="bi bi-search" id="searchOrder"></i>
+
+                </span>
+            </div>
+            @if ((bool)Context.Items["CanAddEdit"] == true)
+            {
+                <a class="text-decoration-none text-white" asp-controller="User" asp-action="Adduser"> <button
+                        class="btn btn-primary "><i class="bi bi-plus "></i>Add User </button></a>
+            }
+        </div>
+    </div>
+    <div id="UserListPV">
+
+    </div>
+</div>
+
+<script>
+
+
+
+
+
+    var currentPageUser = 1;
+    var UserpageSize = 5;
+    var Usersearch = "";
+    var SortbyName = "";
+    var SortbyRole = "";
+
+    function UserSection(page, UserpageSize, Usersearch, SortbyName, SortbyRole) {
+        $.ajax({
+            url: "/User/UserListTable",
+            type: "GET",
+            data: {
+                page: page,
+                pageSize: UserpageSize,
+                search: Usersearch,
+                sortBy: SortbyName,
+                sortbyrole: SortbyRole,
+            },
+            success: function (data) {
+                $("#UserListPV").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#UserListPV').html("<p>Error loading items.</p>");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        UserSection(currentPageUser, UserpageSize, Usersearch, SortbyName, SortbyRole)
+        console.log("ready!");
+    });
+
+
+    $('#search-user').on('input', function () {
+        Usersearch = $("#search-user").val();
+        console.log(Usersearch);
+        UserSection(currentPageUser, UserpageSize, Usersearch, SortbyName, SortbyRole)
+    });
+
+
+</script>

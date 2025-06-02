@@ -1,0 +1,41 @@
+@model Pizzashop.entity.ViewModels.AddCategoryViewModel
+
+<form id="AddCategoryForm" method="post">
+
+    <div class="modal fade" id="AddCategory" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for='CategoryName' type="text" class="form-control hover-effect" id="name"
+                            placeholder="Category Name">
+                        <label asp-for='CategoryName'>Name</label>
+                        <span asp-validation-for="CategoryName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="Description" rows="5" class="form-control hover-effect" placeholder=""
+                            style="height: 100px"></textarea>
+                        <label asp-for="Description">Description</label>
+                        <span class="text-danger" asp-validation-for="Description"></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="AddCategorySave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+  <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> 

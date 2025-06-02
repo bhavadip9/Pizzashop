@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Pizzashop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="~/Pizzashop.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <div class="d-flex vh-100 w-100 mw-100">
+        <div class="row bg-light w-100 m-0  ">
+            <div class="col-lg-6  d-flex justify-content-center align-items-center mb-4 mb-lg-0" id="heroimage">
+                <img src="~/images/dominos_background.jpg" alt="Hero image" class=" img-fluid "
+                    style=" object-fit: cover;height: -webkit-fill-available;" />
+            </div>
+            <div class="col-lg-6  d-flex flex-column justify-content-center  align-item-center align-content-center mainclass"
+                style="background-color: rgb(220, 231, 231);  ">
+                 <div role="main1" class="pb-3">
+                    <partial name="_Notification" />
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

@@ -1,0 +1,509 @@
+@model Pizzashop.entity.ViewModels.OrderDetailViewModel
+
+
+
+<div>
+    <button class="bill-close-btn text-black mt-5" id="billCloseBtn">
+        <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="d-flex justify-content-between">
+
+        <div class="d-flex">
+            <img src="/images/icons/dinner-table.svg" alt="" style="height:50px; width: 50px;padding: 5px">
+            <div>
+                <p class="m-0 p-0" id="sectionname">@Model.SectionName</p>
+                @foreach (var table in @Model.ManyTableList)
+                {
+                    <span id="tabledetail" data-table-id="@table.TableId">@table.TableName</span>
+                }
+            </div>
+
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#QrCodeModel"
+                data-orderid="@Model.OrderId"> <i class="bi bi-qr-code-scan"></i></button>
+            <button data-customerid="@Model.CustomerId" class="btn btn-outline-primary" id="CustomerDetailButton"> <i
+                    class="bi bi-person-lines-fill"></i></button>
+            <button data-orderid="@Model.OrderId" id="OrderWiseCommentbutton" class="btn btn-outline-primary"><i
+                    class="bi bi-chat-left-text"></i></button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th colspan="6">Item</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="BillTablebody">
+                @foreach (var item in @Model.OrderItem)
+                {@if(@item !=null){
+
+                    <tr class="p-2 OldOrderItem" data-id="@item.OrderDetailId" data-ItemId="@item.ItemId"
+                        style="border:2px solid rgb(67, 65, 65); border-radius: 7px; ">
+                        <td colspan="6">
+
+                            <i class="bi bi-chevron-compact-down "></i>
+                            <input type="text" id="Itemtax-@item.ItemId" data-othertax="@item.OtherTax"
+                                value="@item.OtherTax">
+                            <span id="ItemName-@item.ItemId" data-id="@item.ItemId"
+                                class="item-name itemWiseCommentModelopen">@item.ItemName</span>
+                            <span>@item.ItemId</span>
+                            @foreach (var modifier in @item.modifier)
+                            {
+
+                                <li class="gap-2 modifier-item" data-modifier-id="@modifier.ModifierId"><span
+                                        id="ModifierItem-@item.ItemId" class="modifier-name">@modifier.ModifierName</span>
+                                    <span class="modifier-price">@modifier.ModifierPrice ₹</span>
+                                </li>
+
+                            }
+
+                        </td>
+                        <td>
+                            <div class=" p-2 d-flex justify-content-around align-items-center"
+                                style="border:2px solid rgb(67, 65, 65); border-radius: 7px;">
+                                <i class="bi bi-dash"></i>
+                                <span class="TotalQuntity-@item.OrderDetailId"
+                                    data-id="@item.OrderDetailId">@item.Quantity</span>
+                                <i class="bi bi-plus-lg"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span id="ItemPrice-@item.OrderDetailId">@item.Price</span>
+                                @foreach (var modifier in @item.modifier)
+                                {
+                                    <span>@modifier.ModifierPrice ₹</span>
+                                }
+
+                            </div>
+                        </td>
+                        <td>
+                            <i class="bi bi-trash"></i>
+                        </td>
+
+                    </tr>
+                }else
+                {
+                    <tr>
+                        <td></td>
+                        <td> No Any Order</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+                                }
+
+            </tbody>
+        </table>
+
+        <div>
+            <div class="d-flex justify-content-between ">
+                <span>Sub Total</span>
+                <span id="subtotal"></span>
+            </div>
+
+
+
+            @foreach (var tax1 in @Model.tax)
+            {
+                if (tax1.IsDefault == true)
+                {
+                    <div class="d-flex justify-content-between">
+                        <span class="Itemtaxvalue" data-tax="@tax1.TaxId" data-taxtype="@tax1.TaxType"
+                            data-value1="@tax1.TaxAmount"><input type="hidden" name="selectedTaxes"
+                                value="@tax1.TaxAmount" />@tax1.TaxName</span>
+                        <span id="Itemtax-@tax1.TaxId">0.00₹</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between">
+                        <span class="Itemtaxvalue" data-tax="@tax1.TaxId" data-taxtype="@tax1.TaxType"
+                            data-value1="@tax1.TaxAmount">@tax1.TaxName <input type="checkbox" class="checkboxselect"
+                                name="selectedTaxes" value="@tax1.TaxAmount" /></span>
+                        <span id="Itemtax-@tax1.TaxId">0.00₹</span>
+                    </div>
+                }
+            }
+
+
+            <div class="d-flex justify-content-between">
+                <span>Other</span>
+                <span id="othertax">0.00₹</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>TOTAL</span>
+                <span id="total-amount">0.00₹</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <p>Payment method </p>
+                <div class="d-flex text-align-center gap-2 selectPaymentmethod" data-orderid="@Model.OrderId">
+                    <input type="radio" id="Cash" name="paymentmethod" value="Cash" @(Model.PaymentMode == "Cash" ?
+                        "checked" : "")>
+                    <label class="m-auto" for="Cash">Cash</label>
+                    <input type="radio" name="paymentmethod" id="Card" value="Card" @(Model.PaymentMode == "Card" ?
+                        "checked" : "")>
+                    <label class="m-auto" for="Card">Card</label>
+                    <input type="radio" name="paymentmethod" id="UPI" value="UPI" @(Model.PaymentMode == "UPI" ?
+                        "checked" : "")>
+                    <label class="m-auto" for="UPI">UPI</label>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-3">
+                <button class="btn btn-primary Save-order-item " data-orderid="@Model.OrderId">Save</button>
+                <button class="btn btn-outline-primary Complete-order-item"  data-orderid="@Model.OrderId"
+                    data-customerid="@Model.CustomerId">Complete</button>
+ @* <button 
+    class="btn btn-outline-primary Complete-order-item" 
+    @(Model.Status == "Prepared" ? "" : "disabled") 
+    data-orderid="@Model.OrderId"
+    data-customerid="@Model.CustomerId">
+    Complete
+</button> *@
+            
+                        <button class="btn btn-outline-primary" @(Model.OrderStatus == "Complete" ? "" :"disabled")><a class="text-decoration-none invoicebutton" asp-action="DownloadInvoice" asp-controller="Order" asp-route-id="@Model.OrderId">Generate Invoice</a></button>
+                    
+
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-outline-primary cancel-button" data-orderid="@Model.OrderId">Cancel</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="CompleteConfirmationdiv"></div>
+<div id="ShowCanceldiv"></div>
+
+<partial name="./MenuApp/_QRCodePV" />
+
+
+<script>
+ const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/orderhub")
+        .build();
+
+    connection.on("OrderPrepared", function (orderId) {
+        // Enable the button when the order is prepared
+        $(`.Complete-order-item[data-orderid='${orderId}']`).prop("disabled", false);
+    });
+
+    connection.start().catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    $(document).on("change", ".selectPaymentmethod input", function () {
+
+        var method = $(this).val()
+        var orderid = $(".selectPaymentmethod").data("orderid");
+
+        $.ajax({
+            url: "/OrderApp/SavePaymetMethod",
+            method: "GET",
+            data: { orderid: orderid, method: method },
+            success: function (data) {
+                console.log(data)
+                if (data.success == true) {
+                    toastr.success(data.message)
+                }
+                else {
+                    toastr.error(data.message)
+                }
+            }
+        })
+    })
+
+
+    $(document).on("click", ".cancel-button", function () {
+       
+        var orderid = $(this).data("orderid");
+        $.ajax({
+            url: "/OrderApp/CancelOrder",
+            method: "GET",
+            data: { orderid: orderid },
+            success: function (data) {
+                console.log(data);
+               
+                if (data.success == false) {
+                    toastr.error(data.message)
+                }
+                else {
+                    $("#ShowCanceldiv").html(data);
+                    $("#CancelModel").modal('show')
+                    $(".CancelBtn").on("click", function () {
+                        OrderCancel(orderid)
+                    })
+                }
+            }
+
+        })
+
+    });
+
+
+    function OrderCancel(orderid) {
+       
+        $.ajax({
+            url: "/OrderApp/ConfirmCancel",
+            method: "GET",
+            data: { orderid: orderid },
+            success: function (data) {
+                if (data.success == false) {
+                    toastr.error(data.message)
+                }
+                else {
+                    $("#CancelModel").modal('hide')
+                    toastr.success(data.message)
+                    setTimeout(function () {
+                        window.location.href = "http://localhost:5189/OrderApp/WaitingListPage";
+                    }, 2000);
+                }
+            }
+        });
+    }
+
+    $(document).on("click", "#CustomerDetailButton", function () {
+        var customerid = $(this).data("customerid");
+        console.log(customerid)
+        $.ajax({
+            url: "/OrderApp/CustomerDetail",
+            method: "GET",
+            data: { customerid: customerid },
+            success: function (data) {
+                $("#CustomerDetail").html(data);
+                $("#CustomerDetailModal").modal('show');
+            }
+        })
+    })
+    $(document).on("click", ".itemWiseCommentModelopen", function () {
+        var detailid = $(this).data("id");
+        console.log(detailid)
+        $.ajax({
+            url: "/OrderApp/ItemWiseComment",
+            method: "GET",
+            data: { detailsid: detailid },
+            success: function (data) {
+                $("#CustomerDetail").html(data);
+                $("#itemWiseCommentModel").modal('show');
+            }
+
+        })
+    })
+    $(document).on("click", "#OrderWiseCommentbutton", function () {
+        var orderid = $(this).data("orderid");
+        console.log(orderid)
+        $.ajax({
+            url: "/OrderApp/OrderWiseComment",
+            method: "GET",
+            data: { orderid: orderid },
+            success: function (data) {
+                $("#OrderCommentDiv").html(data);
+                $("#orderWiseCommentModel").modal('show');
+            }
+        })
+    })
+
+
+
+
+
+
+    $(document).on("click", '.Save-order-item', function () {
+       
+        var orderid = $(this).data("orderid");
+        var totalbill = parseFloat($("#total-amount").text().trim().replace("₹", ""));
+        console.log(orderid);
+       debugger; 
+        console.log(orderItems)
+
+
+        $.ajax({
+            url: "/OrderApp/SaveOrder",
+            method: "POST",
+            data: { dataList: JSON.stringify(orderItems), id: orderid, TotalAmount: totalbill },
+            success: function (data) {
+                console.log(data)
+                if (data.success == true) {
+                    toastr.success(data.message);
+                }
+                else {
+                    toastr.error(data.message);
+                }
+
+            }
+        })
+    })
+
+    $(document).on("click", ".Complete-order-item", function () {
+        var orderid = $(this).data("orderid");
+        var customerid = $(".Complete-order-item").data("customerid");
+        var totalbill = parseFloat($("#total-amount").text().trim().replace("₹", ""));
+        var subtotal = parseFloat($("#subtotal").text().trim().replace("₹", ""));
+        var othertax = parseFloat($("#othertax").text().trim().replace("₹", ""));
+        var selectedTaxes = [];
+        $('input[name="selectedTaxes"]:checked, input[type="hidden"][name="selectedTaxes"]').each(function () {
+            var $span = $(this).closest('.Itemtaxvalue');
+            var tax = $span.data('tax');
+            var taxamount = parseFloat($("#Itemtax-" + tax).text().replace("₹", "").trim());
+            selectedTaxes.push({ taxId: tax, taxAmount: taxamount });
+        });
+
+
+        if (orderItems.length == 0) {
+            toastr.error("Add Item in Order");
+        }
+
+        else {
+            console.log(selectedTaxes)
+            FormDataConfirm = {
+                orderid: orderid,
+                customerid: customerid,
+                totalbill: totalbill,
+                othertax: othertax,
+                subtotal: subtotal,
+                selectedTaxesstring: JSON.stringify(selectedTaxes),
+
+            }
+
+            $.ajax({
+                url: "/OrderApp/ConfirmationOrder",
+                method: "POST",
+                data: { orderid: orderid },
+                success: function (data) {
+                    console.log(data)
+                    if (data.success == false) {
+                        toastr.error(data.message)
+                    }
+                    else {
+                        $("#CompleteConfirmationdiv").html(data);
+                        $("#ConfirmationModalToggle").modal('show');
+                        $(document).on("click", ".CompleteBtn", function () {
+                            ConfirmationOrder(FormDataConfirm);
+                        })
+
+                    }
+                }
+
+            })
+        }
+    })
+
+
+    function ConfirmationOrder(FormDataConfirm) {
+
+        $.ajax({
+            url: "/OrderApp/ConfirmationOrderStatus",
+            method: "POST",
+            data: FormDataConfirm,
+            success: function (data) {
+                $("#ConfirmationModalToggle").modal('hide');
+
+
+                $("#CustomerReview123").html(data);
+                $("#CustomerReviewModel").modal('show');
+            }
+        })
+    }
+
+  
+
+    var totalvaluetax = 0;
+
+    function UpdateAmount() {
+        var subtotal = parseFloat($("#subtotal").html().trim().replace("₹", "")) || 0;
+        var othertax = parseFloat($("#othertax").html().trim().replace("₹", "")) || 0;
+        var Amount = 0;
+
+        $(".Itemtaxvalue").each(function () {
+            var $this = $(this);
+            var textid = $this.data("tax");
+            var taxtype = $this.data("taxtype");
+            var taxvalue = parseFloat($this.data("value1")) || 0;
+            var value = 0;
+
+            // Check if there's a checkbox inside (optional tax)
+            var $checkbox = $this.find('input[type="checkbox"].checkboxselect');
+            if ($checkbox.length > 0) {
+                // Only if checked, calculate and display
+                if ($checkbox.prop('checked')) {
+                    if (taxtype == "True") {
+                        value = (subtotal * taxvalue) * 0.01;
+                    } else {
+                        value = taxvalue;
+                    }
+                    $(`#Itemtax-${textid}`).html(value.toFixed(2) + "₹");
+                    Amount += value;
+                } else {
+                    $(`#Itemtax-${textid}`).html("0.00₹");
+                }
+            } else {
+                // Default tax, always include
+                if (taxtype == "True") {
+                    value = (subtotal * taxvalue) * 0.01;
+                } else {
+                    value = taxvalue;
+                }
+                $(`#Itemtax-${textid}`).html(value.toFixed(2) + "₹");
+                Amount += value;
+            }
+        });
+
+        var totalAmout = subtotal + Amount + othertax;
+        $('#total-amount').text(totalAmout.toFixed(2) + "₹");
+    }
+
+    $(document).on('change', '.checkboxselect', UpdateAmount);
+
+    $(document).ready(function () {
+
+        $(".OldOrderItem").each(function () {
+
+            var $row = $(this);
+            var id = $row.data("id");
+            var ItemId = $row.data("itemid");
+            var othertax = $(`#Itemtax-${ItemId}`).val();
+            var ItemName = $(`#ItemName-${ItemId}`).html();
+            var TotalQuantity = parseInt($(`.TotalQuntity-${id}`).html().trim());
+            var itemPrice = parseFloat($(`#ItemPrice-${id}`).html().trim());
+
+            var modifiers = [];
+            $row.find('.modifier-item').each(function () {
+                var $mod = $(this);
+                modifiers.push({
+                    id: $mod.data("modifier-id"),
+                    name: $mod.find('.modifier-name').text(),
+                    price: parseFloat($mod.find('.modifier-price').text())
+                });
+            });
+
+            console.log({ ItemId, id, ItemName, TotalQuantity, itemPrice, modifiers });
+
+            orderItems.push({
+                ItemId: ItemId,
+                id: id,
+                name: ItemName,
+                price: itemPrice,
+                othertax: othertax,
+                modifiers: modifiers,
+                quantity: TotalQuantity,
+
+            })
+        });
+        updateOrderDisplay();
+        UpdateAmount()
+    });
+
+
+
+
+</script>

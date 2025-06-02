@@ -1,0 +1,150 @@
+@{
+       ViewData["Title"] = "Customer";
+}
+
+
+
+
+<div class="d-sm-flex justify-content-between align-items-center ms-3 pt-4">
+       <h1 class="fw-bold" style="color: #0077cc;">Customer</h1>
+       <div class="d-flex gap-2 me-2 justify-content-end align-items-center col-md-6 ">
+              <div class="input-group ">
+                     <input type="search" name="search " id="search-customer" placeholder="Search"
+                            class="form-control border-end-0">
+                     <span class="input-group-text bg-white border-start-0 d-md-block d-none">
+                            <img src="~/images/icons/search-icon.svg" alt="" width="24px" id="searchCustomer">
+                     </span>
+              </div>
+
+              <select id="customer-time" class="form-select " aria-label="Default select example">
+                     <option selected value="all">All Time</option>
+                     <option value="7">Last 7 Days</option>
+                     <option value="30">Last 30 Days</option>
+                     <option value="month">Current Month</option>
+              </select>
+
+              <button id="export-Customer" type="button" onclick="exportAllCustomer()"
+                     class="btn btn-primary py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap me-3 d-flex justify-content-center align-items-center gap-1"
+                     style="height: 35px;">
+                     <img src="~/images/icons/export-white.png" width="24px" class="">
+                     <span> Export</span>
+              </button>
+       </div>
+</div>
+
+
+<div class="ms-3 mt-4 table-responsive bg-white shadow" id="CustomerTablebody">
+</div>
+
+<script>
+       var currentPageCustomer = 1;
+       var CustomerpageSize = 5;
+       var Customersearch = "";
+       var CustomerDates = "all";
+         var SortbyName = "";
+       var SortbyDate = "";
+
+
+       function AllCustomer(page, CustomerpageSize, Customersearch, CustomerDates, SortbyName, SortbyDate) {
+
+
+              console.log("search1", Customersearch)
+              $.ajax({
+                     url: "/Customer/CustomerTable",
+                     type: "GET",
+                     data: {
+                            page: page,
+                            pageSize: CustomerpageSize,
+                            search: Customersearch,
+                            Date: CustomerDates,
+                             SortbyName: SortbyName,
+                            SortbyDate: SortbyDate
+                     },
+                     success: function (data) {
+                            $("#CustomerTablebody").html(data);
+                     },
+                     error: function (xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $('#CustomerTablebody').html("<p>Error loading items.</p>");
+                     }
+              });
+       }
+
+       $(document).ready(function () {
+             AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch, CustomerDates, SortbyName, SortbyDate)
+              console.log("ready!");
+       });
+
+
+       $('#search-customer').on('input', function () {
+
+             
+              Customersearch = $("#search-customer").val();
+              console.log(Customersearch);
+               AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch, CustomerDates, SortbyName, SortbyDate)
+       });
+       @* $('#searchCustomer').on('click', function () {
+              Customersearch = $("#search-customer").val();
+              console.log(Customersearch);
+              AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch, CustomerDates)
+
+       }); *@
+
+
+              $("#customer-time").on('change', function () {
+                     
+                     console.log(".....................");
+                     CustomerDates = $(this).val();
+                      AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch, CustomerDates, SortbyName, SortbyDate)
+              });
+
+
+
+       function exportAllCustomer() {
+              // Get filter values
+              
+              const CustomerDates = $('#customer-time').val();
+              const searchCustomer = $('#search-customer').val();
+
+              // Prepare loading state
+              const exportBtn = $('#export-Customer');
+              exportBtn.prop('disabled', true);
+              exportBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...');
+
+              // AJAX call
+              $.ajax({
+                     url: "ExportAllCustomer",
+                     type: 'GET',
+                     data: {
+                            time: CustomerDates,
+                            search: searchCustomer,
+                     },
+                     xhrFields: {
+                            responseType: 'blob'
+                     },
+                     success: function (data, status, xhr) {
+                            // Create download link
+                            const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            const downloadUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = 'CustomerExport.xlsx';
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Cleanup
+                            setTimeout(function () {
+                                   document.body.removeChild(a);
+                                   window.URL.revokeObjectURL(downloadUrl);
+                            }, 100);
+                     },
+                     complete: function () {
+                            // Reset button state
+                            exportBtn.prop('disabled', false);
+                            exportBtn.html('<img src="/images/icons/export-white.png" width="24px"><span> Export</span>');
+                     }
+              });
+       }
+
+
+</script>

@@ -1,0 +1,60 @@
+@model Pizzashop.entity.ViewModels.AddSectionViewModel
+
+
+
+<div class="modal fade" id="UpdateSection" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Section</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editSectionForm">
+                <input type="hidden" id="EditSectionid" asp-for="SectionId" />
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="SectionName" type="text" id="sectionname" class="form-control hover-effect"
+                            placeholder="">
+                        <label asp-for="SectionName">Name</label>
+                        <span class="text-danger" asp-validation-for="SectionName"></span>
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="SectionDescription" rows="3" id="setiondescription"
+                            class="form-control hover-effect" placeholder="" style="height:100px"></textarea>
+                        <label asp-for="SectionDescription">Description</label>
+                        <span class="text-danger" asp-validation-for="SectionDescription"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveSectionBtn">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+@* <script>
+    var initialName = '';
+    var initialDescription = '';
+
+
+    $('#UpdateSection').on('show.bs.modal', function () {
+        initialName = $('#sectionname').val().trim();
+        initialDescription = $('#setiondescription').val().trim();
+        $('#saveSectionBtn').prop('disabled', true);
+    });
+
+
+    function checkForChanges() {
+        var currentName = $('#sectionname').val().trim();
+        var currentDescription = $('#setiondescription').val().trim();
+        var hasChanges = (currentName !== initialName) || (currentDescription !== initialDescription);
+        $('#saveSectionBtn').prop('disabled', !hasChanges);
+    }
+    $('#sectionname, #setiondescription').on('input', checkForChanges);
+</script> *@

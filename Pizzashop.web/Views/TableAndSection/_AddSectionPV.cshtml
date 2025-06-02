@@ -1,0 +1,41 @@
+@model Pizzashop.entity.ViewModels.AddSectionViewModel
+
+
+<div class="modal fade" id="AddSection" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" id="AddSectionForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Section</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <input type="hidden" asp-for="SectionId" />
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="SectionName" type="text" class="form-control hover-effect" placeholder="">
+                        <label asp-for="SectionName">Name</label>
+                        <span asp-validation-for="SectionName" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="SectionDescription" rows="3" class="form-control hover-effect" placeholder=""
+                            style="height:100px"></textarea>
+                        <label asp-for="SectionDescription">Description</label>
+                        <span asp-validation-for="SectionDescription" class="text-danger text-start "
+                            style=" font-size:small; font-family:Noto Sans; "></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="SectionSave">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

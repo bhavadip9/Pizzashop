@@ -1,0 +1,177 @@
+  @model Pizzashop.entity.ViewModels.AddPaginationViewmodel<Pizzashop.entity.ViewModels.CustomerDetailViewModel>;
+
+
+
+
+<div  class="" id="Body">
+
+
+<table class="table ">
+    <thead class="border-dark">
+        <th scope="col">#Name
+            @if (ViewBag.SortByName == "dec_name")
+        {
+            <i class="SortbyName bi bi-arrow-down" style="cursor: pointer;" data-sortbyname="asc_name"></i>
+        }
+        else if (ViewBag.SortByName == "asc_name")
+        {
+            <i class="SortbyName bi bi-arrow-up" style="cursor: pointer;" data-sortbyname="dec_name"></i>
+        }
+        else
+        {   
+            <i class="SortbyName bi bi-arrow-up" style="cursor: pointer;" data-sortbyname="asc_name"></i>
+        }
+        </th>
+        <th scope="col">Email
+          
+        </th>
+        <th scope="col">Phone
+        </th>
+        <th scope="col">Date
+               @if (ViewBag.SortByDate == "dec_name")
+        {
+            <i class="SortbyDate bi bi-arrow-down" style="cursor: pointer;" data-sortbydate="asc_name"></i>
+        }
+        else if (ViewBag.SortByDate == "asc_name")
+        {
+            <i class="SortbyDate bi bi-arrow-up" style="cursor: pointer;" data-sortbydate="dec_name"></i>
+        }
+        else
+        {  
+            <i class="SortbyDate bi bi-arrow-down" style="cursor: pointer;" data-sortbydate="dec_name"></i>
+            <i class="SortbyDate bi bi-arrow-up" style="cursor: pointer;" data-sortbydate="asc_name"></i>
+        }
+        </th>
+         
+        <th scope="col">TotalOrder</th>
+       
+    </thead>
+    <tbody >
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            @foreach (var customer in Model.Items)
+            {
+                <tr onclick="GetCustomerInformetion(@customer.CustomerId)">
+                    <td>#@customer.CustomerName</td>
+                    <td>@customer.CustomerEmail</td>
+                    <td>@customer.CustomerPhone</td>
+                    <td>@customer.Date.ToString("M/d/yyyy")</td>
+                    <td>@customer.TotalOrder</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="12" class="text-center">No records found</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+  @if (Model.Items.Any())
+        {
+ <div>
+<div class="border-0" colspan="10">
+                            <div class="d-flex align-content-center align-items-center justify-content-end">
+                            <span>Items Per page: </span>
+                            <div class="d-flex justify-content-end align-items-center">
+                                <div>
+                                <select class="form-select ms-2 page-list" id="ordertableSizeSelect" asp-for="PageSize" onchange="paginationCustomer()">
+                                    <option value="2" selected="@((Model.PageSize == 2) ? "selected" : null)">2</option>
+                                    <option value="5" selected="@((Model.PageSize == 5) ? "selected" : null)">5</option>
+                                    <option value="10" selected="@((Model.PageSize == 10) ? "selected" : null)">10</option>
+                                    <option value="15" selected="@((Model.PageSize == 15) ? "selected" : null)">15</option>
+                                </select>
+                                </div>
+
+                                <div class="ms-3">
+                                    <span>
+                                        Showing 
+                                        <span id="startUser">@((Model.CurrentPage - 1) * Model.PageSize + 1)</span> -
+                                        <span id="endUser">@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)</span> of
+                                        <span id="totalUser">@Model.TotalCount</span>   
+                                    </span>
+                                </div>
+                                <div class="m-2">
+                                <button class="page-link btn bg-primary" id="prev"  onclick="pageChangeCustomer('prev')" @(Model.CurrentPage
+                                                    == 1 ? "disabled" : "") aria-label="Previous" id="previous_page">
+                                <i class="bi bi-chevron-left text-white" aria-hidden="true"></i>
+                                </button>
+                                </div>
+                                <div class="m-2">
+                                    <button class="page-link btn bg-primary " id="next" onclick="pageChangeCustomer('next')" @((Model.CurrentPage
+                                                    *Model.PageSize >= Model.TotalCount) ? "disabled" : "") aria-label="Next" id="next_page">
+                                        @* <i class="fa-solid fa-forward" aria-hidden="true"></i> *@
+                                        <i class="bi bi-chevron-right text-white"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+    }
+</div>
+
+<div  id="CustomerDetails" >
+</div>
+
+<script>
+
+
+    $(".SortbyName").on('click',  function () {
+       
+    var SortbyName = $(this).data('sortbyname');
+    AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch,CustomerDates, SortbyName,SortbyDate)
+   
+});
+$(".SortbyDate").on('click', function () {
+   
+    var SortbyDate = $(this).data('sortbydate'); 
+    AllCustomer(currentPageCustomer, CustomerpageSize, Customersearch,CustomerDates, SortbyName,SortbyDate)
+   
+});
+      function paginationCustomer() {
+            var value = parseInt($("#ordertableSizeSelect").val());
+            CustomerpageSize = value;
+            let totalPagesOrder = Math.ceil(@Model.TotalCount / CustomerpageSize);
+            if (currentPageCustomer > totalPagesOrder) {
+                currentPageCustomer = totalPagesOrder > 0 ? totalPagesOrder : 1;
+            }
+            AllCustomer( currentPageCustomer, CustomerpageSize, Customersearch,CustomerDates, SortbyName,SortbyDate)
+        }
+
+    function pageChangeCustomer(pageAction) {
+
+        if (pageAction == 'prev') {
+            currentPageCustomer = currentPageCustomer === 1 ? 1 : --currentPageCustomer;
+        }
+        else {
+            currentPageCustomer = (currentPageCustomer * CustomerpageSize) > @Model.TotalCount ? currentPageCustomer : ++currentPageCustomer;
+        }
+        AllCustomer( currentPageCustomer, CustomerpageSize, Customersearch,CustomerDates, SortbyName,SortbyDate)
+    }
+
+function GetCustomerInformetion(CustomerId){
+
+    console.log(">>>>>>>>>>>>>>>>>>>>>>")
+     $.ajax({
+                     url: "GetDetailCustomer",
+                     type: "GET",
+                     data:{
+                        id:CustomerId
+                     },
+                     success: function (data) {
+                            $("#CustomerDetails").html(data);
+                            $("#CustomerDetailsmodal").modal('show');
+                     },
+                     error: function (xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $('#CustomerDetailsModal').html("<p>Error loading items.</p>");
+                     }
+              });
+}
+    
+</script>

@@ -1,0 +1,184 @@
+
+@model Pizzashop.entity.ViewModels.AddPaginationViewmodel<Pizzashop.entity.ViewModels.OrderDetailViewModel>
+
+<div class="tab-content mt-3" id="myTabContent ">
+
+   
+        <div class="tab-pane fade show active" id="tabpanel-item" role="tabpanel" aria-labelledby="tab-item">
+            <div class="shadow pb-3 pt-2">
+               
+                <div class="d-flex justify-content-between align-items-center">
+                    @if(ViewBag.Order_id ==0){
+                         <h2 class="text-primary fw-bold ms-2" >All</h2>
+                    }else{
+                         <h2 class="text-primary fw-bold ms-2" >@Model.Category  </h2>                  
+                    }
+               
+                    <div class="d-flex gap-2 me-2">
+       
+<button id="progress" class="btn  progress-btn-new @(Model.status == "progress" ? "btn-primary" : "btn-outline-primary")" data-status="progress" onclick="ProgressStatus1('progress',@Model.categoryid)">In Progress</button>
+<button id="ready" class="btn  progress-btn-new @(Model.status == "ready" ? "btn-primary" : "btn-outline-primary")" data-status="ready" onclick="ProgressStatus1('ready',@Model.categoryid)">Ready</button>
+                        
+                        <button class="page-link btn " id="prev"  onclick="pageChange('prev')" @(Model.CurrentPage
+                                                    == 1 ? "disabled" : "") aria-label="Previous" id="previous_page">
+                                <i class="bi bi-chevron-left text-primary" aria-hidden="true"></i>
+                                </button>         
+                        <button class="page-link btn " id="next" onclick="pageChange('next')" @((Model.CurrentPage
+                                                    *Model.PageSize >= Model.TotalCount) ? "disabled" : "") aria-label="Next" id="next_page">
+                                        <i class="bi bi-chevron-right text-primary"></i>
+                                    </button>         
+                    </div>
+
+                </div>
+                 @if (Model.Items.Any())
+    {
+                <div class="row">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="col-lg-3 col-md-4 col-sm-6 ms-3 mt-3">
+
+                            <button class="m-0 p-0 w-100 " id="orderentry" data-status="@Model.status" data-orderid="@item.OrderId" style="border-style: dotted; border-radius: 5px;">
+                                <div class="card p-2" style="min-height: 250px;">
+                                    <div style="background-color: antiquewhite;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>#@item.OrderId</div>
+                                            <span><i class="bi bi-stopwatch"></i>
+                                             <small class="live-time-update" data-time="@item.Assigntime.ToString("o")"></small>
+                                                
+                                            </span>
+                                        </div>
+                                         <div class="d-flex justify-content-between align-items-center">
+                                            <div>@item.SectionName</div>
+                                           
+                                        @foreach (var table in @item.ManyTableList)
+                                        {                                                                                 
+                                                <span>@table.TableName</span>                                       
+                                        }
+                                        </div>
+
+                                    </div>
+
+<div style="max-height: 150px; overflow-y: auto;">
+    @foreach(var order in @item.OrderItem){
+                                        <div class="d-flex justify-content-between ">
+                                            <div>@order.ItemName</div>
+                                            @if(Model.status=="ready"){
+                                                <span class="me-2">@order.Prepared</span>
+                                            }else{
+                                                <span class="me-2">@order.Quantity</span>
+                                            }
+                                           
+                                        </div>
+                                        @foreach(var modifier in order.modifier){
+<div class="d-flex">
+    <i class="bi bi-dot"></i>
+<span>@modifier.ModifierName</span>
+</div>
+    
+
+                                        }
+                                       @if (!string.IsNullOrWhiteSpace(order.ItemByComment))
+{
+    <div class="d-flex">
+        <p>
+            <span class="text-primary">Instruction :</span> @order.ItemByComment
+        </p>
+    </div>
+}
+                                        
+                                       
+                                        }
+                                    </div>
+   @if (!string.IsNullOrWhiteSpace(item.OrderComment))
+{
+                                    <div style="background-color: antiquewhite;">
+                                        <p><span class="text-primary">Instruction :</span> @item.OrderComment</p>
+                                    </div>
+}
+                                    
+                                </div>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+          
+    }
+    else
+    {
+        <div class="fw-bold mt-3 ms-4 text-center">
+            No Order Found
+        </div>
+    }
+
+</div>
+  </div>
+        </div>
+
+
+
+
+<script>
+  $(document).ready(function () {
+
+
+function updateOrderTime(){
+            
+        $(".live-time-update").each(function(){
+          
+            var dateString = "";
+            var time = $(this).data("time");
+            if(!time){
+                $(this).text("0 Min");
+                return;
+            }
+            var date1 = new Date(time);
+            var date2 = new Date();
+            var diff = date2.getTime() - date1.getTime();
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -=  days * (1000 * 60 * 60 * 24);
+            if(days> 0){
+                dateString+= days +" days ";
+            }
+            var hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            if(hours> 0){
+                dateString+= hours +" hours ";
+            }
+            var mins = Math.floor(diff / (1000 * 60));
+            diff -= mins * (1000 * 60);
+            if(mins > 0){
+                dateString+= mins + " min ";
+            }
+            var seconds = Math.floor(diff / (1000));
+            diff -= seconds * (1000);
+            dateString += seconds + " sec";
+            $(this).text(dateString);
+        });
+        }
+
+        setInterval(updateOrderTime,1000);
+       
+    });
+
+
+
+function  ProgressStatus1(status,categoryId){
+ 
+  CategoryOrder(categoryId, currentPage, pageSize, status)
+}
+   
+  
+    function pageChange(pageAction) {
+        
+        status = $(".progress-btn-new.btn-primary").data("status");
+
+        if (pageAction == 'prev') {
+            currentPage = currentPage === 1 ? 1 : --currentPage;
+        }
+        else {
+            currentPage = (currentPage * pageSize) > @Model.TotalCount ? currentPage : ++currentPage;
+        }
+        CategoryOrder(categoryId, currentPage, pageSize, status)
+    }
+</script>

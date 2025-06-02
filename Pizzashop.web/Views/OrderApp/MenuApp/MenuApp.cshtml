@@ -1,0 +1,492 @@
+@model List<Pizzashop.entity.ViewModels.AddCategoryViewModel>
+@{
+    ViewData["Title"] = "Order App";
+    Layout = "~/Views/Shared/_KotLayout.cshtml";
+    // ViewBag.OrderId=
+    // Use the KOT layout
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/menu.css" />
+}
+
+<style>
+    .selected {
+        background-color: #e3f2fd;
+        border-color: #2196f3 !important;
+    }
+
+    .quantity-control {
+        border: 2px solid rgb(67, 65, 65);
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    .deleteitem1 {
+        cursor: pointer;
+        color: #dc3545;
+    }
+
+    .toggle-modifiers {
+        transition: transform 0.2s ease;
+        margin-right: 8px;
+    }
+
+    .toggle-modifiers:hover {
+        color: #0077cc;
+        /* Bootstrap primary color */
+    }
+
+    .modifiers-container {
+        padding-left: 28px;
+        /* Match icon width + margin */
+    }
+
+    .bi-chevron-compact-up {
+        transform: rotate(180deg);
+    }
+
+    .active {
+        background-color: #0077cc;
+        color: white;
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="row">
+
+        <button class="menu-toggle text-black" id="menuToggle">
+            <i class="bi bi-list"></i>
+        </button>
+
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+        <div class="col-md-2 shadow sidebar2 py-3" id="sidebar">
+            <button class="sidebar-close text-black" id="sidebarClose">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h5 class="fw-bold" style="margin-bottom: 20px;">Category</h5>
+
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item ">
+                    <a class="nav-link get-category-item " data-id=" -1">Favorito Item </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link get-category-item active" data-id=" 0">All</a>
+                </li>
+
+
+                @foreach (var item in @Model)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link get-category-item" data-id="@item.CategoryId">@item.CategoryName</a>
+                    </li>
+                }
+            </ul>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 bg-light py-3 d-flex main-body">
+            <!-- Top Bar -->
+            @if (@ViewBag.Order_id == 0)
+            {
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center w-100 flex-wrap">
+
+
+                            <div class="bar align-items-center w-40 justify-content-between me-3 mb-2">
+                                <input class="searchbar1 ms-3 w-100 " id="SearchOrederItem" title="Search" name="search"
+                                    placeholder="Search">
+                                <button type="submit" class="border-0 bg-light"><i class="bi bi-search"></i></button>
+                            </div>
+
+                            <div class="legend">
+                                <span><span class="indicator bg-success"></span> Vegetarian</span>
+                                <span><span class="indicator bg-danger"></span> Non-Vegetarian</span>
+                                <span><span class="indicator bg-warning"></span> Vegan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="itemSidebar">
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="showitem">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center w-100 flex-wrap">
+                            <div class="bar align-items-center w-40 justify-content-between me-3 mb-2">
+                                <input class="searchbar1 ms-3 w-100" id="SearchOrederItem" title="Search" name="search"
+                                    placeholder="Search">
+                                <button type="submit" class="border-0 bg-light"><i class="bi bi-search"></i></button>
+                            </div>
+
+                            <div class="legend">
+                                <span><span class="indicator bg-success"></span> Vegetarian</span>
+                                <span><span class="indicator bg-danger"></span> Non-Vegetarian</span>
+                                <span><span class="indicator bg-warning"></span> Vegan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="itemSidebar">
+                    </div>
+
+                </div>
+            }
+
+            @if (@ViewBag.Order_id != 0)
+            {
+                <div id="OrderBillPage" class="shadow p-2 col-6">
+
+                </div>
+                <button id="showBillBtn" class="btn btn-primary position-fixed bottom-0 end-0 m-3 d-lg-none">
+                    <i class="bi bi-receipt"></i> View Bill
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="ModifierItem"></div>
+<div id="CustomerDetail"></div>
+<div id="OrderCommentDiv"></div>
+<div id="CustomerReview123"></div>
+<script>
+
+    document.getElementById('menuToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.add('show');
+        document.getElementById('sidebarOverlay').style.display = 'block';
+    });
+
+    document.getElementById('sidebarClose').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.remove('show');
+        document.getElementById('sidebarOverlay').style.display = 'none';
+    });
+
+    document.getElementById('sidebarOverlay').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.remove('show');
+        this.style.display = 'none';
+    });
+
+
+
+    const showBillBtn = document.getElementById('showBillBtn');
+    const billCloseBtn = document.getElementById('billCloseBtn');
+    const orderBillPage = document.getElementById('OrderBillPage');
+
+    $(document).on('click', "#showBillBtn", function () {
+        console.log("----------")
+
+        $("#OrderBillPage").addClass('show');
+    });
+
+    $(document).on('click', "#billCloseBtn", function () {
+        $("#OrderBillPage").removeClass('show');
+    });
+
+    function enableCategoryActiveToggle() {
+        $(document).on('click', '.get-category-item', function () {
+            $('.get-category-item').removeClass('active');
+            $(this).addClass('active');
+        });
+    }
+
+    var search = "";
+    var categoryId = 0;
+    $(document).ready(function () {
+
+        @* $(document).on('click', '.get-category-item', function () {
+            $('.get-category-item').removeClass('active');
+            $(this).addClass('active');
+        }); *@
+
+
+
+            // Call this once after your menu is rendered:
+            enableCategoryActiveToggle();
+
+        var orderId = '@ViewBag.Order_id';
+        CategoriesByItem(categoryId, search, orderId);
+        if (orderId !== '0' && orderId !== '') {
+            OrderBillPage(orderId);
+        }
+        $('.get-category-item').on("click", function () {
+
+            var categoryId = $(this).data("id");
+            console.log(categoryId)
+            CategoriesByItem(categoryId, search, orderId);
+        });
+
+    });
+
+    $("#SearchOrederItem").on("input", function () {
+
+        search = $("#SearchOrederItem").val();
+        console.log(search);
+        CategoriesByItem(categoryId, search, orderId);
+
+
+    })
+
+    function CategoriesByItem(categoryId, search, orderId) {
+
+        $.ajax({
+            url: "/OrderApp/GetAllItemByCategory",
+            type: "GET",
+            data: {
+                categoryId: categoryId,
+                search: search,
+                orderId: orderId,
+            },
+            success: function (data) {
+                console.log("jjjjjjjjjjjjjjj", data)
+                $("#itemSidebar").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#itemSidebar').html("<p>Error loading items.</p>");
+            }
+        });
+    }
+
+
+
+
+
+    function OrderBillPage(orderId) {
+
+        console.log("Caklll");
+        $.ajax({
+            url: "/OrderApp/OrderBillPage",
+            method: "GET",
+            data: { id: orderId },
+            success: function (data) {
+                console.log("jjjjjjjjjjjjjjj", data)
+                $("#OrderBillPage").html(data)
+            }
+        })
+    }
+
+
+
+
+
+    var NewArray = [];
+    let orderItems = [];
+    let currentModifiers = [];
+    let currentItemId = null;
+
+
+    function addToOrder(item) {
+
+        const existingIndex = orderItems.findIndex(oi =>
+            oi.id === item.id &&
+            JSON.stringify(oi.modifiers.map(m => m.id).sort()) ===
+            JSON.stringify(item.modifiers.map(m => m.id).sort())
+        );
+        if (existingIndex >= 0) {
+            orderItems[existingIndex].quantity++;
+        } else {
+            orderItems.push(item);
+        }
+        updateOrderDisplay();
+
+    }
+
+
+    function updateOrderDisplay() {
+
+
+        const $tbody = $('table tbody');
+        $tbody.empty();
+
+
+        if (orderItems.length == 0) {
+            const $row1 = (`<tr id="no-order-message" >
+                            <td colspan="10" class="text-center p-5">No Order</td>
+                        </tr>
+             `)
+            $tbody.append($row1)
+        }
+
+        let subtotal = 0;
+        let other = 0.00;
+
+        orderItems.forEach(item => {
+debugger
+            // Calculate item total
+            const modifiersTotal = item.modifiers.reduce((sum, mod) => sum + mod.price, 0) * item.quantity;
+            const itemPrice = (item.price) * item.quantity;
+            const itemtax = (item.othertax * item.price / 100) * item.quantity;
+            const itemTotal = itemPrice + modifiersTotal;
+
+            subtotal += itemTotal;
+            other += itemtax;
+
+            // Create modifiers HTML
+            const modifiersHtml = item.modifiers.map(mod => `
+            <li class="gap-2 modifier-item-new " data-modifier-id=${mod.id}>
+                <small class="modifier-name-new">${mod.name}</small>
+                <small class="modifier-price-new">${mod.price} ₹</small>
+            </li>
+        `).join('');
+
+
+            // Create row with collapsible modifiers
+            const $row = $(`
+        <tr class="p-2 NewOrderItem" style="border:2px solid rgb(67, 65, 65); border-radius: 7px;" data-id=${item.id}>
+            <td colspan="6">
+                <i class="bi bi-chevron-compact-down toggle-modifiers" style="cursor:pointer"></i> 
+                <span class="item-name itemWiseCommentModelopen"  data-id=${item.id} id="#ItemName-${item.id}">${item.name}</span>
+                <div class="modifiers-container" style="display:none;  color:#6c757d">
+                    ${modifiersHtml}
+                </div>
+            </td>
+            <td>
+                <div class="p-2 d-flex justify-content-around align-items-center quantity-control">
+                    <i class="bi bi-dash reduce-quntity" id="ID-${item.id}" data-id=${item.id}></i>
+                    <span class="quantity" id="TotalQuntity-${item.id}">${item.quantity}</span>
+                    <i class="bi bi-plus-lg"></i>
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-column">
+                    <span id="ItemPrice-${item.id}">${itemPrice} ₹</span>
+                    <span>${modifiersTotal}</sapn>
+                </div>
+            </td>
+            <td>
+                <i class="bi bi-trash deleteitem1"></i>
+            </td>
+        </tr>
+        `);
+
+
+
+            // Add toggle handler for chevron icon
+            $row.find('.toggle-modifiers').click(function () {
+                const $icon = $(this);
+                const $modifiersContainer = $icon.closest('td').find('.modifiers-container');
+
+                $modifiersContainer.toggle();
+
+                if ($modifiersContainer.is(':visible')) {
+                    $icon.removeClass('bi-chevron-compact-down').addClass('bi-chevron-compact-up');
+                } else {
+                    $icon.removeClass('bi-chevron-compact-up').addClass('bi-chevron-compact-down');
+                }
+            });
+
+
+            $row.find('.bi-dash').click(() => {
+                var ItemId = item.id;
+
+                $.ajax({
+                    url: "/OrderApp/ReduceQuntity",
+                    method: "GET",
+                    data: { id: ItemId },
+                    success: function (data) {
+                        if (item.quantity > data) {
+                            if (item.quantity > 1) {
+                                item.quantity--;
+                                updateOrderDisplay();
+                                toastr.success("Reduce item Quantity")
+                            }
+                        }
+                        else {
+                            toastr.error("Item is Already Prepare")
+                        }
+                    }
+                })
+            });
+
+            $row.find('.bi-plus-lg').click(() => {
+                var orderid =@ViewBag.Order_id
+                    $.ajax({
+                        url: "/OrderApp/AddItemCheckOrderStatus",
+                        method: "GET",
+                        data: { id: orderid },
+                        success: function (data) {
+                            console.log(data)
+                            if (data == "Complete") {
+                                toastr.error("Order is Complete")
+                            }
+                            else {
+                                item.quantity++;
+                                updateOrderDisplay();
+                                toastr.success("Increase Item Quantity")
+                            }
+                        }
+                    })
+
+            });
+
+            // Add delete handler
+            $row.find('.deleteitem1').click(() => {
+                var ItemId = item.id;
+                $.ajax({
+                    url: "/OrderApp/ReduceQuntity",
+                    method: "GET",
+                    data: { id: ItemId },
+                    success: function (data) {
+                        console.log(data)
+                        if (data == 0) {
+
+                            orderItems = orderItems.filter(oi => oi !== item);
+                            updateOrderDisplay();
+                            toastr.success("Delete item")
+                        }
+                        else {
+                            toastr.error("Item is Already Prepare")
+                        }
+                    }
+                })
+            });
+            $tbody.append($row);
+        });
+
+
+
+        $('#subtotal').text(`${subtotal.toFixed(2)}₹`);
+        $("#othertax").text(`${other.toFixed(2)}₹`)
+        UpdateAmount()
+    }
+
+
+
+
+
+    $(".NewOrderItem").each(function () {
+        var $row = $(this);
+        var ItemId = $row.data("id");
+        var othertax = $(`#Itemtax-${ItemId}`).val();
+        var TotalQuantity = $(`#TotalQuntity-${id}`).html();
+        var ItemName = $(`#ItemName-${id}`).html();
+        var itemPrice = $(`#ItemPrice-${id}`).html();
+
+        var modifiers = [];
+        $row.find('.modifier-item-new').each(function () {
+            var $mod = $(this);
+            modifiers.push({
+                id: $mod.data("modifier-id"),
+                name: $mod.find('.modifier-name-new').text(),
+                price: parseFloat($mod.find('.modifier-price-new').text().trim())
+            });
+        });
+
+        console.log({ ItemId, id, ItemName, TotalQuantity, itemPrice, modifiers });
+    });
+
+
+
+</script>

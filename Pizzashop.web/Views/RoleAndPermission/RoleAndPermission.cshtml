@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "RoleAndPermission";
+}
+
+
+<div>
+
+    <h1 class=" fw-bold mb-3" style="color: #0077cc;">Roles</h1>
+    <div class="p-5 shadow pt-5  table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th colspan="11">Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="11">Admin</td>
+                    <td>
+                        <a asp-action="Permission" asp-controller="RoleAndPermission" asp-route-roleId="1"> <img
+                                height="30px" src="~/images/icons/icons8-ballpoint-pen-64.png" alt=""></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="11">Account Manager</td>
+                    <td>
+                        <a asp-action="Permission" asp-controller="RoleAndPermission" asp-route-roleId="2"> <img
+                                height="30px" src="~/images/icons/icons8-ballpoint-pen-64.png" alt=""></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="11">Chef</td>
+                    <td>
+                        <a asp-action="Permission" asp-controller="RoleAndPermission" asp-route-roleId="3"> <img
+                                height="30px" src="~/images/icons/icons8-ballpoint-pen-64.png" alt=""></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

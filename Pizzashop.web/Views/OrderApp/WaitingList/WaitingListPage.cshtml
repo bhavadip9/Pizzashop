@@ -1,0 +1,317 @@
+@model Pizzashop.entity.ViewModels.AddWaitingAssignViewModel
+
+@{
+    ViewData["Title"] = "Waiting List";
+    Layout = "~/Views/Shared/_KotLayout.cshtml"; // Use the KOT layout
+}
+<style>
+    .icon-button {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        color: #333333;
+        background: #dddddd;
+        border: none;
+        outline: none;
+        border-radius: 50%;
+    }
+
+    .icon-button:hover {
+        cursor: pointer;
+    }
+
+    .icon-button:active {
+        background: #cccccc;
+    }
+
+    .nav-item .nav-link.active {
+        border-bottom: 4px solid rgb(25, 25, 231);
+    }
+
+    .icon-button__badge {
+
+        width: 25px;
+        height: 25px;
+        background: hwb(0 60% 38%);
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+    }
+</style>
+<div class="m-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class=" fw-bold" style="color: #0077cc;">Waiting List</h1>
+        <button class="btn border-2 border-primary text-primary" id="AddWatingUser" data-bs-toggle="modal"
+            data-bs-target="#AddUserWaitingList">+ Waiting
+            List</button>
+    </div>
+    <div>
+
+    </div>
+
+    <div>
+        <ul class="nav nav-tabs gap-1" id="myTabs" role="tablist" style="background-color: #f7eeee;
+    padding: 9px;
+    border-radius: 15px;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-decoration-none text-black d-flex gap-2" id="tab-item" data-bs-toggle="tab"
+                    data-bs-target="#tabpanel-ite" type="button" role="tab" aria-controls="tabpanel-item"
+                    aria-selected="true" onclick="GetTabList(0)">
+                    <span class="material-icons">All</span>
+                    <span class="icon-button__badge">@Model.WaitingUserList.Count()</span>
+                </button>
+            </li>
+
+
+            @foreach (var item in @Model.SectionList)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-decoration-none d-flex gap-2 text-black" id="tab-item" data-bs-toggle="tab"
+                        onclick="GetTabList(@item.SectionId)" data-bs-target="#tabpanel-item-@item.SectionId" type="button"
+                        role="tab" aria-controls="tabpanel-item" aria-selected="false" >
+                        <span class="material-icons"> @item.SectionName</span>
+                        <span class="icon-button__badge">@Model.WaitingUserList.Count(x => x.SectionId == item.SectionId)</span>
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div id="WaitingListTableDiv"></div>
+   
+</div>
+
+
+
+
+<partial name="./WaitingList/_AddUserInWaitingList" model="new Pizzashop.entity.ViewModels.WaitingUserDetails()" />
+<partial name="./WaitingList/_EditWaitingUser" model="new Pizzashop.entity.ViewModels.WaitingUserDetails()" />
+<partial name="./WaitingList/_DeleteWaitingUser" model="new Pizzashop.entity.ViewModels.WaitingUserDetails()" />
+
+<script>
+    function DeleteWaitingModal(Id) {
+        document.getElementById('WaitingUser').value = Id;
+    }
+
+    $(document).ready(function () {
+        GetTabList(0); // Call this when the page loads
+    });
+
+    function GetTabList(section_id) {
+
+        if (section_id === 0) { 
+            $.ajax({
+            url: "/OrderApp/GetAllWaitingUser",
+            type: "GET",
+            data: { sectionid: section_id },
+            success: function (data) {
+                console.log(data);
+                    $("#WaitingListTableDiv").html(data);   
+            }
+        }) 
+    } else {
+        console.log(section_id);
+        $.ajax({
+            url: "/OrderApp/GetSectionByWaitingList",
+            type: "GET",
+            data: { sectionid: section_id },
+            success: function (data) {
+                console.log(data);
+                @* GetAllSectionEdit(sectionId); *@
+                    $("#WaitingListTableDiv").html(data);
+                @* $("#EditUserWaitingList").modal('show'); *@
+            }
+        }) 
+    }
+       
+    }
+
+
+
+
+
+   
+    @* $(".tableAndSectionAssignButton").on('click', function () {
+        var WaitingUserId = $(this).data('item-id')
+        var sectionId = $(this).data('section-id')
+        console.log("..............", WaitingUserId)
+        $.ajax({
+            url: "/OrderApp/TableSectionAssign",
+            type: "GET",
+            data: {
+                WaitingUserId: WaitingUserId,
+                sectionId: sectionId
+            },
+            success: function (data) {
+                GetAllSelectSection(sectionId);
+                AppendTable(sectionId);
+                $("#tableandsection").html(data);
+                $("#AssignTableAndSection").modal('show');
+            }
+
+        })
+    }) *@
+
+
+    $(document).ready(function () {
+        
+        $("#AddWatingUser").click(function () {
+            
+            GetAllSectionList();
+        });
+    })
+    function GetAllSectionList() {
+  
+        $.ajax({
+            url: '/OrderApp/GetAllAnselectSection',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log("Response Data:", data);
+                var options = '<option value="-1">Section</option>';
+                $.each(data, function (index, section) {
+                    options += '<option value="' + section.sectionId + '">' + section.sectionName + '</option>';
+                });
+                $("#SectionSectectForUserAdd").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#SectionSectectForUserAdd").html('<option value="-1">Failed to load section</option>');
+            }
+        });
+    }
+
+    function AppendTable(sectionId) {
+        $.ajax({
+            url: '/OrderApp/GetAllTableBySection',
+            type: 'POST',
+            data: { sectionId: sectionId },
+            dataType: 'json',
+            success: function (data) {
+                console.log("arguments>>>>>>>>>>>>>>>", data)
+                console.log("arguments>>>>>>>>>>>>>>>", data.length)
+
+                let dropdownMenu = $(".select-table");
+                dropdownMenu.empty();
+
+                if (data.length == 0) {
+                    let back = `<li class="text-danger">
+                    <div>No Table Available </div>
+                    </li>`
+                    dropdownMenu.append(back);
+                }
+
+                data.forEach(table => {
+                    let listItem = `
+                    <li class="ms-3">
+                        <div class="form-check me-4">
+                            <input 
+                                class="form-check-input table-group-checkbox" 
+                                data-name="${table.tableName}" 
+                                id="mod-${table.tableId}" 
+                                type="checkbox" 
+                                value="${table.tableId}">
+                            <label 
+                                class="form-check-label table-label" 
+                                for="mod-${table.tableId}">
+                                ${table.tableName}
+                                <small>(${table.capacity})</small>
+                            </label>
+                        </div>
+                    </li>`;
+
+                    dropdownMenu.append(listItem);
+                });
+
+                $(".table-group-checkbox").change(function () {
+                    let tableId = $(this).val();
+                    if ($(this).is(":checked")) {
+                        tempArrayTable.push(parseInt(tableId));
+                    } else {
+                        tempArrayTable = tempArrayTable.filter(id => id !== parseInt(tableId));
+                    }
+
+                    UpdateSelectTablebar();
+                    updateDropdownTableText();
+
+                    console.log("Selected Modifier IDs:", tempArrayTable);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#Section123").html('<option value="-1">Failed to load section</option>');
+            }
+        });
+
+    }
+    function GetAllSelectSection(selectedId) {
+        $.ajax({
+            url: '/OrderApp/GetAllAnselectSection',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                const dropdown = $('#Section123');
+                dropdown.empty();
+
+                data.forEach(function (section) {
+                    dropdown.append(new Option(section.sectionName, section.sectionId,
+                        section.sectionId == selectedId, section.sectionId == selectedId));
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#Section123").html('<option value="-1">Failed to load section</option>');
+            }
+        });
+    }
+    function GetAllSectionEdit(selectedId) {
+        $.ajax({
+            url: '/OrderApp/GetAllAnselectSection',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                const dropdown = $('#SelectedSectionEdit');
+                dropdown.empty();
+
+                data.forEach(function (section) {
+                    dropdown.append(new Option(section.sectionName, section.sectionId,
+                        section.sectionId == selectedId, section.sectionId == selectedId));
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#Section123").html('<option value="-1">Failed to load section</option>');
+            }
+        });
+    }
+
+
+    @* function GetAllTableBySection(sectionId) {
+        $.ajax({
+            url: '/OrderApp/GetAllTableBySection',
+            type: 'GET',
+            data: sectionId,
+            dataType: 'json',
+            success: function (data) {
+                console.log("Response Data:", data);
+                var options = '<option value="-1">Section</option>';
+                $.each(data, function (index, section) {
+                    options += '<option value="' + section.sectionId + '">' + section.sectionName + '</option>';
+                });
+                $("#Section123").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#Section123").html('<option value="-1">Failed to load section</option>');
+            }
+        });
+    } *@
+
+
+
+</script>

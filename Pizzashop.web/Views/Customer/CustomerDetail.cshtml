@@ -1,0 +1,121 @@
+@model Pizzashop.entity.ViewModels.CustomerHistoryViewModel
+
+<div class="modal fade" id="CustomerDetailsmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Customer History</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="detailsbody conatiner">
+                    <div class="row gx-3 gy-2">
+                        <div class="col-6">
+                            <div class="form-control">
+                                <div class="form-control">
+                                    <div class="row gx-3">
+                                        <div class="col-9">Name</div>
+                                        <div class="col-3 text-center">@Model.CustomerName</div>
+                                    </div>
+                                </div>
+                                <div class="form-control">
+
+                                    <div class="row gx-3">
+                                        <div class="col-9">Mobile Number</div>
+                                        <div class="col-3 text-center">@Model.CustomerPhone</div>
+                                    </div>
+                                </div>
+                                <div class="form-control">
+                                    <div class="row gx-3">
+                                        <div class="col-9">Max Order</div>
+                                        <div class="col-3 text-center">@Model.Maxbill</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-control mb-2">
+                                <div class="row gx-3">
+                                    <div class="col-9">Average Bill</div>
+                                    <div class="col-3 text-center">@Model.Avgbill</div>
+                                </div>
+                            </div>
+                            <div class="form-control mb-2">
+
+                                <div class="row gx-3">
+                                    <div class="col-9">Comming Since</div>
+                                    <div class="col-3 text-center">@Model.CreatedOn.ToShortDateString()</div>
+                                </div>
+                            </div>
+                            <div class="form-control mb-2">
+                                <div class="row gx-3">
+                                    <div class="col-9">Visits</div>
+                                    <div class="col-3 text-center">@Model.Visits</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive form-control ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-center align-content-center">
+                                        Order Date
+                                    </th>
+                                    <th class="text-center align-content-center">
+                                        Order Type
+                                    </th>
+                                    <th class="text-center align-content-center">
+                                        Payment
+                                    </th>
+                                    <th class="text-center align-content-center">
+                                        Items
+                                    </th>
+                                    <th class="text-center align-content-center">
+                                        Amount
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.orderDetailViewModels == null)
+                                {
+                                    <tr>
+                                        No Record Found
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var order in Model.orderDetailViewModels)
+                                    {
+                                        <tr>
+                                            <td class="text-center align-content-center">
+                                                @order.OrderDate.ToShortDateString()
+                                            </td>
+                                            <td class="text-center align-content-center">
+                                                @order.OrderType
+                                            </td>
+                                            <td class="text-center align-content-center">
+                                                @order.PaymentMethod
+                                            </td>
+                                            <td class="text-center align-content-center">
+                                                @order.TotalItem
+                                            </td>
+                                            <td class="text-center align-content-center">
+                                                @order.OrderAmount ₹
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

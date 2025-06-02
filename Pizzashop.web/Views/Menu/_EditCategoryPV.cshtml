@@ -1,0 +1,59 @@
+@model Pizzashop.entity.ViewModels.AddCategoryViewModel
+
+<form id="updateForm" method="post" asp-controller="Menu" asp-action="EditCategory" onsubmit="updateHiddenFields()">
+    <input type="hidden" id="UpdateCategoryId" name="CategoryId">
+    <input type="hidden" id="HiddenCategoryName" name="CategoryName">
+    <input type="hidden" id="HiddenCategoryDescription" name="Description">
+
+    <div class="modal fade" id="UpdateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="CategoryName" type="text" class="form-control hover-effect"
+                            id="CategoryNameInput" placeholder="Category Name">
+                        <label for="CategoryNameInput">Name</label>
+                    </div>
+                    <p id="CategoryID"></p>
+                    <div class="form-floating">
+                        <textarea asp-for="Description"  style="height: 100px;" class="form-control hover-effect"
+                            id="CategoryDescriptionInput" placeholder="Description"></textarea>
+                        <label for="CategoryDescriptionInput">Description</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="updateButton" disabled> Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    var initialCategoryName = '';
+    var initialCategoryDescription = '';
+
+
+    $('#UpdateModal').on('show.bs.modal', function () {
+        initialCategoryName = $('#CategoryNameInput').val().trim();
+        initialCategoryDescription = $('#CategoryDescriptionInput').val().trim();
+        $('#updateButton').prop('disabled', true);
+    });
+
+
+    function checkForChanges() {
+        var currentName = $('#CategoryNameInput').val().trim();
+        var currentDescription = $('#CategoryDescriptionInput').val().trim();
+        var hasChanges = (currentName !== initialCategoryName) || (currentDescription !== initialCategoryDescription);
+        $('#updateButton').prop('disabled', !hasChanges);
+    }
+
+
+    $('#CategoryNameInput, #CategoryDescriptionInput').on('input', checkForChanges);
+</script>

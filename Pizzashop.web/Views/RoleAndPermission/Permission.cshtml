@@ -1,0 +1,262 @@
+@model Pizzashop.entity.ViewModels.RoleAndPermissionViewModel
+
+
+
+<div>
+    <div class="d-flex flex-row justify-content-between mb-3">
+        <h1 class=" fw-bold" style="color: #0077cc;">Permission</h1>
+        <button class="d-flex justify-content-center bg-primary-subtle rounded-2 align-items-center gap-2"
+            style="height: 40px;">
+            <a asp-action="RoleAndPermission" class="d-flex text-decoration-none text-black gap-2"> <i
+                    class="bi bi-chevron-left"></i>
+                <p class="m-auto">Back</p>
+            </a>
+
+        </button>
+    </div>
+
+    <div class="col-4 form-floating-custom my-3">
+        <input type="text" class="form-control hover-effect" id="name" value="@ViewBag.RoleName" disabled>
+        <label>Role</label>
+    </div>
+
+    <form class="shadow p-3" asp-action="SavePermissions" id="permissions-form" method="post">
+        <input type="hidden" asp-for="RoleId" />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="form-check">
+                            <input type="checkbox" id="selectAll" class="form-check-input" />
+                        </div>
+
+
+                    </th>
+                    <th colspan="4">Permission</th>
+                    <th>Can View</th>
+                    <th>Can Add/Edit</th>
+                    <th>Can Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Permissions.Count; i++)
+                {
+                    <input type="hidden" asp-for="Permissions[i].RolePermissionId" />
+                    <tr>
+
+                        <td>
+                            <div class="form-check">
+                                <input type="checkbox" id="checked'@i"
+                                    class="form-check-input main-checkbox row-checkbox" />
+
+                            </div>
+                        </td>
+                        <td colspan="4">@Model.Permissions[i].PermissionName</td>
+
+                        <td>
+                            <div class="form-check form-switch ">
+                                <input asp-for="Permissions[i].CanView" class="form-check-input toggle-switch canView"
+                                    type="checkbox" disabled>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div class="form-check form-switch ">
+
+                                <input asp-for="Permissions[i].CanAddEdit" class="form-check-input toggle-switch canAddEdit"
+                                    type="checkbox" disabled>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div class="form-check form-switch ">
+
+                                <input asp-for="Permissions[i].CanDelete" class="form-check-input toggle-switch canDelete"
+                                    type="checkbox" disabled>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-center justify-content-md-end mt-3 gap-3">
+            <button type="submit" class="btn btn-primary active" aria-current="page" value="Send">Save</button>
+            <a class="btn border border-dark" asp-action="RoleAndPermission" asp-controller="RoleAndPermission"> Cancel</a>
+        </div>
+        @* <button type="button" id="save-permissions-btn" class="btn btn-primary">Save</button> *@
+    </form>
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let selectAll = $("#selectAll");
+        let checkboxes = $(".row-checkbox");
+
+        function updateSelectAllState() {
+            let checkedCount = checkboxes.filter(":checked").length;
+            selectAll.prop("indeterminate", checkedCount > 0 && checkedCount < checkboxes.length)
+                .prop("checked", checkedCount === checkboxes.length);
+        }
+
+        function toggleRowSwitches(row, isChecked) {
+            let switches = row.find(".toggle-switch");
+            switches.prop("disabled", !isChecked);
+            if (!isChecked) {
+                switches.prop("checked", false);
+            }
+        }
+
+        selectAll.change(function () {
+            let isChecked = this.checked;
+            checkboxes.prop("checked", isChecked);
+            checkboxes.each(function () {
+                let row = $(this).closest("tr");
+                toggleRowSwitches(row, isChecked);
+            });
+            updateSelectAllState();
+        });
+
+        checkboxes.change(function () {
+            let row = $(this).closest("tr");
+            let isChecked = $(this).is(":checked");
+            toggleRowSwitches(row, isChecked);
+            updateSelectAllState();
+        });
+
+        $(".canAddEdit, .canDelete").change(function () {
+            let row = $(this).closest("tr");
+            let canView = row.find(".canView");
+
+            if ($(this).is(":checked")) {
+                canView.prop("checked", true);
+            }
+        });
+
+        $(".canView").change(function () {
+            let row = $(this).closest("tr");
+            let canAddEdit = row.find(".canAddEdit");
+            let canDelete = row.find(".canDelete");
+
+            if (!$(this).is(":checked")) {
+                canAddEdit.prop("checked", false);
+                canDelete.prop("checked", false);
+            }
+        });
+
+        checkboxes.each(function () {
+            let row = $(this).closest("tr");
+            let canView = row.find(".canView");
+            if (canView.is(":checked")) {
+                $(this).prop("checked", true);
+            }
+            let isChecked = $(this).is(":checked");
+            toggleRowSwitches(row, isChecked);
+        });
+        updateSelectAllState();
+    });
+
+</script>
+
+
+@* 
+
+@* @model Pizzashop.entity.ViewModels.RoleAndPermissionViewModel
+
+<div>
+    <!-- #region  -->
+    <div class="d-flex flex-row justify-content-between mb-3">
+        <h1 class="text-primary fw-bold">Permission</h1>
+        <a asp-action="" class="btn btn-outline-dark " style="height: 40px;"> <img
+                src="~/images/icons/icons8-back-50.png" alt="" height="15px">
+            <span class="m-auto">Back</span>
+        </a>
+    </div>
+
+    <div class="col-4 form-floating-custom my-3">
+        <input type="text" class="form-control hover-effect" id="name" value="@ViewBag.RoleName" disabled>
+        <label>Role</label>
+    </div>
+    <form asp-action="SavePermissions" method="post">
+        <input type="hidden" asp-for="RoleId" />
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-dash-square"></i></th>
+                    <th colspan="4">Permission</th>
+                    <th>Can View</th>
+                    <th>Can Add/Edit</th>
+                    <th>Can Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Permissions.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" asp-for="Permissions[i].RolePermissionId" />
+                            <input type="hidden" asp-for="Permissions[i].PermissionName" />
+                            <input type="hidden" asp-for="Permissions[i].PreviousIsChecked" />
+                            <input type="hidden" asp-for="Permissions[i].PreviousCanView" />
+                            <input type="hidden" asp-for="Permissions[i].PreviousCanAddEdit" />
+                            <input type="hidden" asp-for="Permissions[i].PreviousCanDelete" />
+                            <input type="checkbox" asp-for="Permissions[i].IsChecked"
+                                class="form-check-input main-checkbox" />
+                        </td>
+                        <td colspan="4">@Model.Permissions[i].PermissionName</td>
+                        <td>
+                            <div class="form-check form-switch ">
+                                
+                                <input asp-for="Permissions[i].CanView" class="form-check-input toggle-switch"
+                                    type="checkbox" disabled>
+                            </div>
+                        </td>
+                        <td>
+
+                            <div class="form-check form-switch ">
+                                <input asp-for="Permissions[i].CanAddEdit" class="form-check-input toggle-switch"
+                                    type="checkbox" disabled>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div class="form-check form-switch ">
+                                <input asp-for="Permissions[i].CanDelete" class="form-check-input toggle-switch"
+                                    type="checkbox" disabled >
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-center justify-content-md-end mt-3 gap-3">
+            <button type="submit" class="btn btn-primary active" aria-current="page" value="Send">Save</button>
+            <a class="btn border border-dark" asp-action="Permission" asp-controller="Home"> Cancel</a>
+        </div>
+    </form>
+
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".main-checkbox").forEach(mainCheckbox => {
+            mainCheckbox.addEventListener("change", function () {
+                let row = this.closest("tr");
+                let toggleSwitches = row.querySelectorAll(".toggle-switch");
+
+                toggleSwitches.forEach(switchBtn => {
+                    switchBtn.disabled = !this.checked;
+                });
+            });
+        });
+    });
+    
+</script> *@

@@ -1,0 +1,389 @@
+@model Pizzashop.entity.ViewModels.WaitingViewModel
+
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_KotLayout.cshtml"; // Use the KOT layout
+}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<style>
+    .modal-dialog-slideout {
+        min-height: 100%;
+        margin: 0 0 0 auto;
+        background: #fff;
+    }
+
+    .modal.fade .modal-dialog.modal-dialog-slideout {
+        -webkit-transform: translate(100%, 0)scale(1);
+        transform: translate(100%, 0)scale(1);
+    }
+
+    .modal.fade.show .modal-dialog.modal-dialog-slideout {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+        display: flex;
+        align-items: stretch;
+        -webkit-box-align: stretch;
+        height: 100%;
+    }
+
+    .modal.fade.show .modal-dialog.modal-dialog-slideout .modal-body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .modal-dialog-slideout .modal-content {
+        border: 0;
+    }
+
+    .modal-dialog-slideout .modal-header,
+    .modal-dialog-slideout .modal-footer {
+        height: 69px;
+        display: block;
+    }
+
+    .modal-dialog-slideout .modal-header h5 {
+        float: left;
+    }
+
+    .table-card.selected {
+        border: 2px solid green;
+    }
+</style>
+
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<div>
+    <div class="d-flex justify-content-between align-items-center mt-2 me-2 ms-2">
+        <div>
+            <h1 class="fw-bold" style="color: #0077cc;" >Table View</h1>
+        </div>
+        <div class="d-flex flex-row gap-3 mt-3">
+            <p>
+                <i class="bi bi-record-fill " style="color: hwb(0 60% 38%);"></i>Avilable
+            </p>
+            <p>
+                <i class="bi bi-record text-success"></i>Selected
+            </p>
+            <p>
+                <i class="bi bi-record-fill " style="color: hwb(99 58% 11%);"></i>Assign
+            </p>
+            <p>
+                <i class="bi bi-record-fill  text-primary"></i>Running
+            </p>
+        </div>
+    </div>
+
+    <div>
+        @foreach (var item in @Model.SectionList)
+        {
+
+            <div class="floor-section">
+                <div class="floor-header" onclick="toggleFloor(this)">
+                    <div class="d-flex gap-2">
+                        <span class="arrow" style=" ">
+                            <small class="m-auto"><i class="bi bi-chevron-right "></i> </small></span>
+                        <span id="getAllSection">@item.SectionName</span>
+                    </div>
+
+                    <div class="">
+                        <small class="mx-1"><i class="bi bi-record-fill " style="color: hwb(0 60% 38%);"></i>@item.TableList.Count(x => x.TableStatus == "Available")</small>
+                        <small class="mx-1"><i class="bi bi-record-fill " style="color: hwb(99 58% 11%);"></i>@item.TableList.Count(x => x.TableStatus == "Occupied")</small>
+                        <small class="mx-1"><i class="bi bi-record-fill text-primary"></i>@item.TableList.Count(x => x.TableStatus == "Running")</small>
+                        <button class="btn border-2 border-primary text-primary" id="AddWaitingUserbutton"
+                            data-id="@item.SectionId">+ Waiting
+                            List</button>
+                    </div>
+                </div>
+                <div class="floor-body">
+                    <div>
+                        @foreach (var table in item.TableList)
+                        {
+
+                            if (table.TableStatus == "Running")
+                            {
+                                <a asp-action="MenuApp" asp-route-id="@table.OrderId" asp-controller="OrderApp" class="text-decoretion-none text-black">
+                                <div class="table-card  h-25" style="background-color: rgb(202, 202, 248);">
+                                    <div class="title d-flex justify-content-between align-items-center">
+                            
+                                        <div class="text-primary">@table.TableName</div>
+                                       
+                                        <span>₹@table.orderAmount</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center gap-3">
+                                        <div>
+                                            <i class="bi bi-people"></i>
+                                            <p>@table.Capacity</p>
+                                            @* <p>@table.TableId</p>
+                                             <span>@table.OrderId</span>  *@
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <i class="bi bi-stopwatch"></i>
+                                            <small class="live-time" data-time="@table.Time.ToString("o")"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                </a>
+                               
+                            }
+                            else if (table.TableStatus == "Occupied")
+                            { 
+                                <a asp-action="MenuApp" asp-route-id="@table.OrderId" asp-controller="OrderApp" class="text-decoretion-none text-black">
+                                <div class="table-card  h-25" style="background-color: hwb(99 81% 5%);">
+                                    <div class="title d-flex justify-content-between align-items-center">
+                                        <div class="text-success">@table.TableName</div> 
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center gap-3">
+                                        <div>
+                                            <i class="bi bi-people"></i>
+                                            <p>@table.Capacity</p>
+                                            @* <span>@table.OrderId</span> *@
+                                           
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <i class="bi bi-stopwatch"></i>
+                                           <small class="live-time" data-time="@table.Assigntime.ToString("o")"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="table-card h-25" style="background-color:hwb(0 60% 38%);"
+                                    onclick="selectTableCard(this, @table.TableId,@item.SectionId,@table.Capacity)">
+                                    <div class="title d-flex justify-content-between align-items-center">
+                                        <div>@table.TableName</div>
+                                        @* <span>₹309.40</span> *@
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center gap-3">
+                                        <div>
+                                            <i class="bi bi-people"></i>
+                                            <p>@table.Capacity</p>
+                                        </div>
+                                        <div>
+                                            <i class="bi bi-stopwatch"></i>
+                                            <small>0 Min <br></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        }
+
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button class="btn btn-info text-white AddAssignSidebar AssignButton d-none"
+                            style="background-color:blue ; " data-id="@item.SectionId">Assign</button>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<div id="AddUserWaiting">
+</div>
+
+<div id="AddAssign">
+</div>
+
+<script>
+
+    let tempselectedTableIdsforOrder = [];
+    let selectedTableIdsforOrder = [];
+    let selectedFloor = [];
+    let count = 0;
+
+    function selectTableCard(card, tableId, sectionId,Capacity) {
+        const isSelected = $(card).hasClass('selected');
+
+        if (selectedFloor.length == 0) {
+            selectedFloor.push(sectionId);
+        }
+        var newSectionId = selectedFloor.includes(sectionId);
+
+        if (newSectionId) {
+
+            if (isSelected) {
+                $(card).removeClass('selected').css('border', 'none');
+                count--;
+                if (count == 0) {
+                    $(card).parent().parent().find('.AssignButton').addClass("d-none");
+                    selectedFloor = [];
+                }
+                tempselectedTableIdsforOrder = tempselectedTableIdsforOrder.filter(id => id != tableId);
+            } else {
+                $(card).addClass('selected').css('border', '2px solid green');
+                count++;
+                $(card).parent().parent().find('.AssignButton').removeClass("d-none");
+                @* $("#AssignButton").removeClass("d-none"); *@
+                    tempselectedTableIdsforOrder.push(tableId);
+            }
+            console.log("Selected Table IDs: ", tempselectedTableIdsforOrder);
+        }
+
+    }
+
+    function toggleFloor(header) {
+        const arrow = header.querySelector('.arrow');
+        const body = header.nextElementSibling;
+        const isVisible = body.style.display === 'block';
+
+        body.style.display = isVisible ? 'none' : 'block';
+        arrow.classList.toggle('rotate', !isVisible);
+    }
+
+
+    $(document).on('click', '#AddWaitingUserbutton', function () {
+   
+        var sectionId = $(this).data('id');
+        console.log("Section ID: ", sectionId);
+      
+         AddWaitingUserAdd(sectionId);
+    });
+
+    function AddWaitingUserAdd(sectionId) {
+
+        console.log("AddWaitngUserAdd.....................");
+        $.ajax({
+
+            url: '/OrderApp/AddWaitingUser',
+            type: 'GET',
+            success: function (data) {
+
+                $("#AddUserWaiting").html(data);
+                  GetAllSectionSelection(sectionId);
+                $('#AddWaitingUser').modal('show');
+
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+
+            }
+        });
+    }
+
+
+
+    function GetAllSectionSelection(selectedId) {
+
+        console.log("GetAllSectionSelection....................... ", selectedId)
+        $.ajax({
+            url: '/OrderApp/GetAllSection',
+            type: 'GET',
+            success: function (data) {
+
+                console.log("GetAllSection....................... ", data)
+                const dropdown = $('#SectionSelectID');
+
+                dropdown.empty();
+
+                data.forEach(function (section) {
+                    if(section.sectionId==selectedId){
+                    dropdown.append(new Option(section.sectionName, section.sectionId,
+                        section.sectionId == selectedId, section.sectionId == selectedId));
+                        }
+                });
+            }
+        });
+    }
+
+
+
+
+    $(document).ready(function () {
+
+
+function updateTime(){
+            
+        $(".live-time").each(function(){
+          
+            var dateString = "";
+            var time = $(this).data("time");
+            if(!time){
+                $(this).text("0 Min");
+                return;
+            }
+            var date1 = new Date(time);
+            var date2 = new Date();
+            var diff = date2.getTime() - date1.getTime();
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -=  days * (1000 * 60 * 60 * 24);
+             diff -= 30 * (1000 * 60);
+            if(days> 0){
+                dateString+= days +" days ";
+            }
+            var hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            if(hours> 0){
+                dateString+= hours +" hours ";
+            }
+            var mins = Math.floor(diff / (1000 * 60));
+            diff -= mins * (1000 * 60);
+            if(mins > 0){
+                dateString+= mins + " min ";
+            }
+            var seconds = Math.floor(diff / (1000));
+            diff -= seconds * (1000);
+            dateString += seconds + " sec";
+            $(this).text(dateString);
+        });
+        }
+
+        setInterval(updateTime,1000);
+        $('.AddAssignSidebar').on('click', function () {
+            console.log("Selected Table IDs: ", tempselectedTableIdsforOrder);
+            AddAssignSidebar($(this).data('id'), tempselectedTableIdsforOrder);
+        });
+    });
+
+
+    function AddAssignSidebar(sectionId, tblids) {
+        let Data = { "sectionId": sectionId, "tableIds": tblids };
+        $.ajax({
+
+            url: '/OrderApp/AddAssignSidebar',
+            type: 'POST',
+            data: Data,
+            success: function (data) {
+
+                $("#AddAssign").html(data);
+                $('#AddAssignPage').modal('show');
+                //  GetAllSectionSelection(sectionId);
+                $.ajax({
+                    url: '/OrderApp/GetAllSection',
+                    type: 'GET',
+                    success: function (data) {
+
+                        console.log("GetAllSection....................... ", data)
+                        const dropdown = $('#SectionSelectID123');
+
+                        dropdown.empty();
+
+                        data.forEach(function (section) {
+                            dropdown.append(new Option(section.sectionName, section.sectionId,
+                                section.sectionId == sectionId, section.sectionId == sectionId));
+                        });
+                    }
+                });
+
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+
+
+            }
+        });
+    }
+
+</script>

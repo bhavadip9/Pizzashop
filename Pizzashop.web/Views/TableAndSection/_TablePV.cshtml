@@ -1,0 +1,239 @@
+@* @model List<Pizzashop.entity.ViewModels.AddTableViewModel> *@
+@model Pizzashop.entity.ViewModels.AddPaginationViewmodel<Pizzashop.entity.ViewModels.AddTableViewModel>
+
+<style>
+    .page-link:disabled{background-color: rgb(213, 213, 241);}
+</style>
+<div class="table-responsive" id="tableBody">
+    <table class="table">
+        <thead>
+            <tr>
+                <th><input class="form-check-input main-checkbox" type="checkbox" id="selectAllTable"></th>
+                <th class="col-4">Name</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                @if((bool)Context.Items["CanAddEdit"] == true || (bool)Context.Items["CanDelete"] == true ){
+
+                <th>Action</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if ( Model.Items.Any())
+            {
+                foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><input value="@item.TableId" class="form-check-input main-checkbox  delete-checkbox-table"
+                                type="checkbox"></td>
+
+                        <td class="d-flex gap-2 align-content-center" >
+                            <p>@item.TableName</p>
+                        </td>
+                        <td class="">
+                            <p>@item.Capacity</p>
+                        </td>
+                        <td>
+                            @if (item.Status == "Available")
+                            {
+                                <button class="bg-secondary text-white border-0" style="border-radius: 200px;"><small>Available</small></button>
+                            }
+                            else if(item.Status =="Occupied")
+                            {
+                                <button class="bg-primary text-white border-0" style="border-radius: 200px;"><small>Occupied</small> </button>
+                            }
+                            else{
+                                <button class="bg-success text-white border-0" style="border-radius: 200px;"><small>Running</small> </button>
+                            }
+                        </td>
+                       
+                         <td class="gap-3">
+                            @if((bool)Context.Items["CanAddEdit"] == true ){
+                             if(item.Status == "Available" ){   
+                            <button class="btn  edit-table" data-table-id="@item.TableId" data-bs-toggle="modal"
+                                data-bs-target="#EditTable"><i class="bi bi-pen"></i> </button>
+                                }
+                            }
+                            @if((bool)Context.Items["CanDelete"] == true ){
+                                 if(item.Status == "Available" ){ 
+                            <button class="btn  delete-table" data-table-id="@item.TableId" data-table-name="@item.TableName"
+                                data-bs-toggle="modal" data-bs-target="#DeleteTable"><i class="bi bi-trash"></i></button>
+                                }
+                            }
+
+                        </td>
+                    </tr>
+                    
+                 
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center">No records found.</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+      @if ( Model.Items.Any()){
+       <div>
+                        <div class="border-0" colspan="10">
+                            <div class="d-flex align-content-center align-items-center justify-content-end">
+                            <span>Items Per page: </span>
+                            <div class="d-flex justify-content-end align-items-center">
+                                <div>
+                                <select class="form-select ms-2 page-list" id="tableSizeSelect" asp-for="PageSize" onchange="paginationTable()">
+                                    <option value="2" selected="@((Model.PageSize == 2) ? "selected" : null)">2</option>
+                                    <option value="5" selected="@((Model.PageSize == 5) ? "selected" : null)">5</option>
+                                    <option value="10" selected="@((Model.PageSize == 10) ? "selected" : null)">10</option>
+                                    <option value="15" selected="@((Model.PageSize == 15) ? "selected" : null)">15</option>
+                                </select>
+                                </div>
+
+                                <div class="ms-3">
+                                    <span>
+                                        Showing 
+                                        <span id="startUser">@((Model.CurrentPage - 1) * Model.PageSize + 1)</span> -
+                                        <span id="endUser">@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount)</span> of
+                                        <span id="totalUser">@Model.TotalCount</span>   
+                                    </span>
+                                </div>
+                                <div class="m-2">
+                                <button class="page-link btn bg-primary" id="prev"  onclick="pageChange('prev')" @(Model.CurrentPage
+                                                    == 1 ? "disabled" : "") aria-label="Previous" id="previous_page">
+                                <i class="bi bi-chevron-left text-white" aria-hidden="true"></i>
+                                </button>
+                                </div>
+                                <div class="m-2">
+                                    <button class="page-link btn bg-primary" id="next" onclick="pageChange('next')" @((Model.CurrentPage
+                                                    *Model.PageSize >= Model.TotalCount) ? "disabled" : "") aria-label="Next" id="next_page">
+                                        <i class="bi bi-chevron-right text-white"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+}
+    
+</div>
+
+
+<partial name="_UpdateTablePV" model="new Pizzashop.entity.ViewModels.AddTableViewModel()" />
+<partial name="_DeleteTablePV" model="new Pizzashop.entity.ViewModels.AddTableViewModel()" />
+<partial name="_ManyTableDeletePV" model="new Pizzashop.entity.ViewModels.AddTableViewModel()" />
+
+
+
+<script>
+    $('.edit-table').click(function () {
+       
+        var tableId = $(this).data('table-id');
+        console.log("tableId " + tableId);
+
+        $.ajax({
+            url: '/TableAndSection/EditTable',
+            type: 'GET',
+            data: { id: tableId },
+            success: function (response) {
+                console.log(response);
+                if (response) {
+                    GetAllSection(response.sectionId);
+                    @* $('#SectionSelect').val(response.sectionId); *@
+                    $('#Tablename').val(response.tableName);
+                    $('#TableID').val(response.tableId);
+                    $('#Capacity').val(response.capacity);
+                    $('#StatusOption').val(response.status.toString());
+ 
+                } else {
+                    alert('Item not found.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while fetching item details.');
+            }
+        });
+    });
+
+
+     function  GetAllSection(selectedId) {
+            $.ajax({
+                url: '/TableAndSection/GetAllSection',
+                type: 'GET',
+                success: function (data) {
+                    const dropdown = $('#SectionSelect');
+                    dropdown.empty();
+                    data.forEach(function (section) {
+                        dropdown.append(new Option(section.sectionName, section.sectionId,
+                            section.sectionId == selectedId, section.sectionId == selectedId));
+                    });
+                }
+            });
+        }
+
+  
+
+    $('.delete-table').click(function () {
+        var TableId = $(this).data('table-id');
+        var TableName = $(this).data('table-name');
+        document.getElementById('DeleteTableName').innerText = `${TableName}`;
+        $('#DeleteTableId').val(TableId);
+        $('#DeleteTable').submit(function (e) {
+            DeleteTable(TableId);
+        });
+    });
+
+
+    function DeleteTable(TableId) {
+        $.ajax({
+            url: '/TableAndSection/DeleteTable',
+            type: 'POST',
+            data: { id: TableId },
+            success: function (response) {
+                if (response) {
+                    $('#DeleteTable').modal('hide');
+                } else {
+                    alert('Item not found.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while fetching item details.');
+            }
+        });
+
+    }
+
+    $("#selectAllTable").click(function () {
+        $(".delete-checkbox-table").prop("checked", this.checked);
+    });
+
+     $(".delete-checkbox-table").change(function () {
+    let totalCheckboxes = $(".delete-checkbox-table").length;
+    let totalChecked = $(".delete-checkbox-table:checked").length;
+
+    $("#selectAllTable").prop('checked', totalCheckboxes === totalChecked);
+});
+  
+        function paginationTable() {
+            var value = parseInt($("#tableSizeSelect").val());
+            pageSize = value;
+            let totalPages = Math.ceil(@Model.TotalCount / pageSize);
+            if (currentPage > totalPages) {
+                currentPage = totalPages > 0 ? totalPages : 1;
+            }
+            SectionTable(currentTableId, currentPage, pageSize, search)
+        }
+
+    function pageChange(pageAction) {
+
+        if (pageAction == 'prev') {
+            currentPage = currentPage === 1 ? 1 : --currentPage;
+        }
+        else {
+            currentPage = (currentPage * pageSize) > @Model.TotalCount ? currentPage : ++currentPage;
+        }
+        SectionTable(currentTableId, currentPage, pageSize, search)
+    }
+</script>

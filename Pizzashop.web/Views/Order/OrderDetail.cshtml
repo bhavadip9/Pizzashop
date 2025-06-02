@@ -1,0 +1,207 @@
+@model Pizzashop.entity.ViewModels.OrderDetailViewModel
+
+@{
+     ViewData["Title"] = "Order Detail";
+}
+<style>
+     .bg-header {
+          background-color: #0066A7;
+     }
+
+     .text-header {
+          color: white;
+     }
+
+     .box {
+          border: 1px solid #ddd;
+          padding: 15px;
+          border-radius: 5px;
+          background: white;
+     }
+</style>
+
+
+
+<div class="justify-content-center m-auto" style="max-width: 800px;">
+     <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="text-primary fw-bold">Order-Details</h2>
+          <button class="d-flex justify-content-center bg-primary-subtle rounded-2 align-items-center gap-2"
+               style="height: 40px;">
+               <a asp-action="Order" asp-controller="Order" class="d-flex text-decoration-none text-black gap-2"><i
+                         class="bi bi-chevron-left"></i>
+                    <p class="m-auto">Back</p>
+               </a>
+          </button>
+
+     </div>
+     <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5>Order Summary <span class="badge bg-primary">@Model.OrderStatus</span></h5>
+          <button type="button" id=""
+               class="btn btn-primary py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap  d-flex justify-content-center align-items-center gap-1"
+               style="height: 35px;">
+               <a asp-action="DownloadInvoice" asp-controller="Order" asp-route-id="@Model.OrderId">
+                    <img src="~/images/icons/export-white.png" width="24px" class="">
+                    <span class="text-light"> Export</span>
+               </a>
+
+          </button>
+     </div>
+     <div class="box shadow">
+          <p><strong>Invoice No:</strong>#@Model.OrderId</p>
+          <p><strong>Placed on:</strong> @Model.StartDate</p>
+          <p><strong>Modified on:</strong> @Model.EndDate</p>
+     </div>
+     <div class="row mt-3">
+          <div class="col-md-6">
+               <div class="box shadow" style="height:230px">
+                    <h5>Customer Details</h5>
+                    <p><strong>Name:</strong>@Model.CustomerName</p>
+                    <p><strong>Phone:</strong> @Model.CustomerPhone</p>
+                    <p><strong>No. of Persons:</strong> @Model.TotalPerson</p>
+                    <p><strong>Email:</strong> @Model.CustomerEmail</p>
+               </div>
+          </div>
+          <div class="col-md-6">
+               <div class="box shadow" style="height:230px">
+                    <h5>Table Details</h5>
+                   
+<p><strong>Table:</strong> @foreach(var table in @Model.ManyTableList){ <span class="gap-2">@table.TableName </span> }
+                    </p>
+                 
+                    <p><strong>Section:</strong> @Model.SectionName</p>
+               </div>
+          </div>
+     </div>
+     <div class="mt-4">
+          <h5>Order Items</h5>
+          <div class="table-responsive shadow">
+               <table class="table  ">
+                    <thead class="table-light">
+                         <tr>
+                              <th>#</th>
+                              <th>Item</th>
+                              <th>Quantity</th>
+                              <th>Price</th>
+                              <th>Total Amount</th>
+                         </tr>
+                    </thead>
+                    <tbody id="orderTableBody"></tbody>
+                    @if (Model.OrderItem != null && Model.OrderItem.Any())
+                    {
+                         for (int i = 0; i < Model.OrderItem.Count; i++)
+                         {
+                              var item = Model.OrderItem[i];
+                              <tr>
+                                   <td rowspan="@(item.modifier?.Count() > 0 ? item.modifier.Count() + 1 : 1)">
+                                        @(i + 1)
+                                   </td>
+                                   <td class="pb-0">@item.ItemName</td>
+                                   <td class="pb-0">@item.Quantity</td>
+                                   <td class=" pb-0">@((item.Price).ToString("0.00"))</td>
+                                   <td class="text-end pb-0">@((item.Quantity * (item.Price)).ToString("0.00"))</td>
+                              </tr>
+                              if (item.modifier != null && item.modifier.Any())
+                              {
+                                   for (int j = 0; j < item.modifier.Count(); j++)
+                                   {
+                                        var modifier = item.modifier.ElementAt(j); var count = item.modifier?.Count();
+                                        <tr class="@(count != j + 1 ? "" : "border-bottom")">
+                                             <td class="  @(count != j + 1 ? "py-0" : "pt-0")">
+                                                  <li>@modifier.ModifierName</li>
+                                             </td>
+                                             <td class="  @(count != j + 1 ? "py-0" : "pt-0")"></td>
+                                             @* <td class="  @(count != j + 1 ? "py-0" : "pt-0")">1</td> *@
+                                             <td class=" @(count != j + 1 ? "py-0" : "pt-0")">
+                                                  @((modifier.ModifierPrice).ToString("0.00"))
+                                             </td>
+                                             <td class="text-end @(count != j + 1 ? "py-0" : "pt-0")">@((
+                                                                                modifier.ModifierPrice *modifier.Quantity)?.ToString("0.00") ?? "default")</td>
+                    </tr>
+                                        }
+                              }
+                         }
+                    }
+                    else
+                    {
+                         <tr>
+                              <td colspan="5" class="text-center">No items found</td>
+                         </tr>
+                    }
+
+                    </tbody>
+                 
+               </table>
+               <div class="d-flex justify-content-end mb-3 me-3">
+                    <div class="box text-end  " style="width: 250px;">
+                         @if(@Model.Subtotal==null){
+                              <p><strong>Subtotal:</strong> ₹ 0.00</p>
+                         }else{
+                         <p><strong>Subtotal:</strong> ₹ @Model.Subtotal.ToString()</p>
+                         }
+                       
+
+                           @if (Model.tax != null && Model.tax.Any())
+                           {         
+                                   @foreach (var tax in @Model.tax)
+                                   {
+                                        if(@tax.TotalTax!=null){
+   <p class="d-flex justify-content-end">
+                                                   <strong>@tax.TaxName:</strong>
+                                                   <span class="text-end">₹ @tax.TotalTax</span>
+                                          </p>
+                                        }                                            
+                                   }     
+                           }
+                         @if(@Model.OtherTax==null){
+                              <p><strong>Other:</strong> ₹ 0.00</p>
+                         }else{
+                              <p><strong>Other:</strong> ₹ @Model.OtherTax</p>
+                         }
+                        @if(Model.OderAmount==null || Model.OderAmount==0){
+                              <p><strong>Total:</strong> ₹ 0.00</p>
+                         }else{
+                              <p><strong>Total:</strong> ₹ @Model.OderAmount</p>
+                         }
+                        
+                    </div>
+               </div>
+          </div>
+     </div>
+</div>
+
+
+
+@* <script>
+     document.addEventListener("DOMContentLoaded", function () {
+          let totalAmount = 0;
+
+          document.querySelectorAll("tbody tr").forEach(row => {
+               const totalCell = row.querySelector("td.text-end");
+               if (totalCell) {
+                    const amount = parseFloat(totalCell.textContent.trim());
+                    if (!isNaN(amount)) {
+                         totalAmount += amount;
+                    }
+               }
+          });
+          const totalAmountElement = document.getElementById("totalAmount");
+          if (totalAmountElement) {
+               totalAmountElement.textContent = totalAmount.toFixed(2);
+          }
+          console.log("Total Amount of Bill:", totalAmount);
+
+
+
+          let finalAmount=0;
+          const totalTax = @Model.tax.Where(t => t.TaxAmount > 0).Sum(t => t.TaxAmount);
+          finalAmount = totalAmount + totalTax;
+          console.log("Total Amount of Bill with Tax:", finalAmount);
+           const finalbillAmount = document.getElementById("finalAmount")
+          if (finalbillAmount) {
+               finalbillAmount.textContent = finalAmount.toFixed(2);
+          }
+         ;
+     });
+
+
+</script> *@

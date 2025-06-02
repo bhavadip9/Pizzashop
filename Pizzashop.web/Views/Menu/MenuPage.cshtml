@@ -1,0 +1,1026 @@
+@model Pizzashop.entity.ViewModels.MenuListViewModel
+
+@{
+    ViewData["Title"] = "MenuPage";
+}
+
+<style>
+    .parent.active {
+       color: #0077cc;
+        font-weight: 600;
+
+    }
+
+    .parent1.active {
+       color: #0077cc;
+        font-weight: 600;
+    }
+</style>
+
+<div>
+    <h1 class="fw-bold" style="color: #0077cc;">Menu</h1>
+
+    <div>
+        <ul class="nav nav-tabs" id="myTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-decoration-none text-black" id="tab-item" data-bs-toggle="tab"
+                    data-bs-target="#tabpanel-item" type="button" role="tab" aria-controls="tabpanel-item"
+                    aria-selected="true">
+                    <i class="bi bi-list-check"></i> Item
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-decoration-none text-black" id="tab-modifier" data-bs-toggle="tab"
+                    data-bs-target="#tabpanel-modifier" type="button" role="tab" aria-controls="tabpanel-modifier"
+                    aria-selected="false">
+                    <i class="bi bi-ui-checks-grid"></i> Modifier
+                </button>
+            </li>
+        </ul>
+
+      
+    <div class="tab-content mt-3" id="myTabContent">
+            <!-- Item Tab -->
+            <div class="tab-pane fade show active" id="tabpanel-item" role="tabpanel" aria-labelledby="tab-item">
+                <div class="row pe-4 ps-3">
+                    <!-- Left Panel: Category List -->
+                    <div class=" bg-white" id="SectionTableLeftPart">
+                        <div>
+                             <div class="d-flex flex-row gap-3 align-items-center pt-3 flex-wrap">
+            <span class="fw-bold fs-5 m-auto" style="color: #0077cc;">Category</span>
+            @if ((bool)Context.Items["CanAddEdit"] == true)
+            {
+                <button type="button" class="border-0 bg-light "   id="AddcategoryButton" >
+                    <h3 class="text-primary"><i class="bi bi-plus-square"></i></h3>
+                </button>
+            }
+        </div>
+                            
+                              <ul class="list-group list-unstyled mt-3 d-none d-md-block"
+            style="max-height: 50vh; overflow-x: hidden; overflow-y: auto;">
+            @foreach (var item in Model.Category)
+            {
+                <li class="mb-2 parent d-flex gap-2 list-group-item-action pt-3 pe-3 pb-3 justify-content-between">
+                    <div class="d-flex gap-2 category-item w-100" data-id="@item.CategoryId">
+                                         <i class="bi bi-grid-3x2-gap-fill" style="transform: rotate(90deg);"></i>
+                                        <p class=" mt-auto mb-auto " >
+                                            @item.CategoryName</p>
+                                       </div>
+                    <div class="gap-1 d-flex notvisible">
+                        @if ((bool)Context.Items["CanAddEdit"] == true)
+                        {
+                            <button class="btn text-primary" data-bs-toggle="modal" data-bs-target="#UpdateMOdel"
+                                    onclick="openUpdateModal(@item.CategoryId,'@item.CategoryName', '@item.Description')">
+                                <i class="bi bi-pen"></i>
+                            </button>
+                        }
+                        @if ((bool)Context.Items["CanDelete"] == true)
+                        {
+                            @* <button class="btn text-primary" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    onclick="openDeleteModal(@item.CategoryId,'@item.CategoryName')">
+                                <i class="bi bi-trash"></i>
+                            </button> *@
+                            <button class="btn text-primary delete-category" data-category-id='@item.CategoryId' data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+       <div class="d-flex flex-direction-row d-md-none mt-3 mb-3 gap-2">
+           
+           
+<select class="form-select" id="categorySelector">
+    @for (int i = 0; i < Model.Category.Count; i++)
+    {
+        var item = Model.Category[i];
+        <option class="category-item-change" value="@item.CategoryId"
+                data-name="@item.CategoryName"
+                data-id="@item.CategoryId"
+                data-description="@item.Description"
+                selected="@(i == 0)">
+            @item.CategoryName
+        </option>
+    }
+</select>
+
+
+
+            <!-- Action Buttons -->
+            <div class=" d-flex gap-2" id="mobileButtons" style="display: none;">
+                @if ((bool)Context.Items["CanAddEdit"] == true)
+                {
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#UpdateMOdel" id="mobileEditBtn">
+                        <i class="bi bi-pen"></i> 
+                    </button>
+                }
+                @if ((bool)Context.Items["CanDelete"] == true)
+                {
+                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" id="mobileDeleteBtn">
+                        <i class="bi bi-trash"></i> 
+                    </button>
+                }
+            </div>
+        </div>
+                        </div>
+                    </div>
+                    <!-- Right Panel: Item List -->
+                    <div class=" bg-white p-3 shadow" id="SectionTableRightPart">
+                        <div class="itemHader">
+                            <div>
+                                 <p class=" fw-bold" style="color: #0077cc;">Item</p>
+                            </div>
+                           
+                            <div class="d-flex flex-row gap-3 mt-3">
+                                 <div class="input-group search-space"  >
+                                     <input type="search" name="search " id="search-item" placeholder="Search" class="form-control border-end-0">
+                                         <span class="input-group-text bg-white border-start-0">
+                                                <i class="bi bi-search" id="searchOrder"></i>
+                                         </span>
+                                </div>         
+                    
+                               <div class="d-flex gap-2 justify-content-end">
+                                   @if ((bool)Context.Items["CanDelete"] == true)
+                                {
+                                <button class="btn " style="border: 1px solid rgb(43, 41, 41);" id="Itembutton" >
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                }
+                                 @if ((bool)Context.Items["CanAddEdit"] == true)
+                                {
+                                <button class="btn  AddItemNew" style="background-color: #0077cc; color: aliceblue;" data-bs-toggle="modal"
+                                    data-bs-target="#AddCategoryItem" >
+                                    <i class="bi bi-plus"></i><span class="Additemtext">Add Item</span>
+                                </button>
+                                }
+                               </div>
+                                
+                               
+                            </div>
+                        </div>
+                        <div class="responsive-table" id="itemContainer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modifier Tab -->
+            <div class="tab-pane fade" id="tabpanel-modifier" role="tabpanel" aria-labelledby="tab-modifier">
+                <div class="tab-pane fade show active" id="tabpanel-item" role="tabpanel" aria-labelledby="tab-item">
+                    <div class="row pe-4 ps-3">
+                        <!-- Left Panel: Category List -->
+                        <div class=" bg-white " id="SectionTableLeftPart">
+                            <div>
+                                <div class="d-flex flex-row  align-items-center pt-3 mb-3">
+                                    <p class="fw-bold m-auto" style="font-size: larger; color: #0077cc;">Modifier Group</p>
+                                      @if ((bool)Context.Items["CanAddEdit"] == true)
+                                {
+                                    <button type="button" class="border-0 btn m-auto" data-bs-toggle="modal"
+                                        data-bs-target="#AddModifierGroup">
+                                        <h3 style="color: #0077cc;"> <i class="bi bi-plus-square"></i></h3>
+                                    </button>
+                                    }
+                                </div>
+                                <ul class="list-group list-unstyled mt-3 categoryside d-none d-md-block"
+                                    style="">
+                                    @foreach (var item in Model.ModifierGroup)
+                                    {
+                                         <li class="mb-2 parent parent1 d-flex gap-2 list-group-item-action pt-3 pe-3 pb-3 justify-content-between" style="cursor: pointer;">
+                                        @* <li class="mb-2 parent parent1 d-flex gap-2 list-group-item-action pt-3 pe-3 pb-3 justify-content-between" style="cursor: pointer;"> *@
+                                            <div class="d-flex gap-2 modifier-item-sidebar"  data-id="@item.ModifierGroupId">
+                                            <i class="bi bi-grid-3x2-gap-fill me-2" style="transform: rotate(90deg);"></i>
+                                            <p class=" mt-auto mb-auto">@item.ModifierName</p>
+                                            </div>
+                                           
+                                            <div class="gap-1 d-flex notvisible">
+                                                
+@if ((bool)Context.Items["CanAddEdit"] == true)
+                                {
+                                                <button class="btn" style="color: #0077cc;"
+                                                    onclick="openEditModifierModal(@item.ModifierGroupId)"> <i
+                                                        class="bi bi-pen  "></i></button>
+                                                        }
+                                                          @if ((bool)Context.Items["CanDelete"] == true)
+                                {
+                                                <button class="btn delete-modifierGroup" style="color: #0077cc;"
+                                                    data-modifier-id="@item.ModifierGroupId"
+                                                    data-modifiername="@item.ModifierName">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                }
+
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+ <div class="d-flex flex-direction-row d-md-none mt-3 mb-3 gap-2">
+                    <select class="form-select" id="modifierSelector">
+                        @for (int i = 0; i < Model.ModifierGroup.Count; i++)
+                        {
+                            var item = Model.ModifierGroup[i];
+                            <option class="category-modifier-change" value="@item.ModifierGroupId" data-name="@item.ModifierName"
+                                data-id="@item.ModifierGroupId" data-description="@item.Descriptionmodifier" selected="@(i == 0)">
+                                @item.ModifierName
+                            </option>
+                        }
+                    </select>
+
+                    <!-- Action Buttons -->
+                    <div class=" d-flex gap-2" id="mobileButtonsModifier" style="display: none;">
+                        @if ((bool)Context.Items["CanAddEdit"] == true)
+                        {
+                            <button class="btn btn-outline-primary edit-modifierGroup"  id="mobileEditBtnmodifier">
+                                <i class="bi bi-pen"></i>
+                            </button>
+                        }
+                        @if ((bool)Context.Items["CanDelete"] == true)
+                        {
+                            <button class="btn btn-outline-danger delete-modifierGroup" 
+                                id="mobileDeleteBtnmodifier">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+             </div>
+                        </div>
+                        <!-- Right Panel: Item List -->
+                        <div class=" bg-white p-3 shadow" id="SectionTableRightPart">
+                            @* <div class="d-flex flex-row justify-content-between  mb-3"> *@
+                            <div class="itemHader">
+                                <div>
+                                    <p class=" fw-bold" style="color: #0077cc;">Modifier Item</p>
+                                </div>
+                               
+                        <div class="d-flex flex-row gap-3 mt-3 mb-3">
+                   
+                    <div class="input-group search-space-table"  >
+                                     <input type="search" name="search " id="search-Modifier" placeholder="Search" class="form-control border-end-0">
+                                         <span class="input-group-text bg-white border-start-0">
+                                                <i class="bi bi-search" id="searchOrder"></i>
+                                         </span>
+                                </div>  
+                                 
+@if ((bool)Context.Items["CanDelete"] == true)
+                                {
+                                    <button class="btn " style="border: 1px solid rgb(43, 41, 41);" id="DeleteManyModifier">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    }
+                                      @if ((bool)Context.Items["CanAddEdit"] == true)
+                                {
+                                    <button class="btn  " id="AddModifier" style="background-color: #0077cc; color: aliceblue;">
+                                        <i class="bi bi-plus"></i> <span class="Additemtext">Add Modifier</span>
+                                    </button>
+                                    }
+                                </div>
+                            </div>
+
+
+                            <div class="table-responsive" id="itemModifier">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ShowAddModifierItem"></div>
+<div id="DeleteManyItemDiv"></div>
+<div id="DeleteManyModifierDiv"></div>
+<div id="DeleteModifierGroupdiv"></div>
+<div id="ShowAddCategory"></div>
+
+@* <partial name="_AddCategoryPV" model="new Pizzashop.entity.ViewModels.AddCategoryViewModel()" /> *@
+<partial name="_EditCategoryPV" model="new Pizzashop.entity.ViewModels.AddCategoryViewModel()" />
+<partial name="_DeleteCategoryPV" model="new Pizzashop.entity.ViewModels.AddCategoryViewModel()" />
+
+<partial name="_AddItemPM" model="new Pizzashop.entity.ViewModels.AddItemViewModel()" />
+
+
+<partial name="_AddModifierGroupPV" model="new Pizzashop.entity.ViewModels.AddModifierGroupViewModel()" />
+<partial name="_EditModifierGroupPV" model="new Pizzashop.entity.ViewModels.AddModifierGroupViewModel()" />
+
+<script type="text/javascript">
+
+    function openUpdateModal(categoryId, categoryName, categoryDescription) {
+        document.getElementById("UpdateCategoryId").value = categoryId;
+        document.getElementById("CategoryNameInput").value = categoryName;
+        document.getElementById("CategoryDescriptionInput").value = categoryDescription;
+
+        var updateModal = new bootstrap.Modal(document.getElementById("UpdateModal"));
+        updateModal.show();
+    }
+
+    function updateHiddenFields() {
+        document.getElementById("HiddenCategoryName").value = document.getElementById("CategoryNameInput").value;
+        document.getElementById("HiddenCategoryDescription").value = document.getElementById("CategoryDescriptionInput").value;
+    }
+    function openDeleteModal(categoryId, categoryName) {
+        debugger
+        document.getElementById('deleteCategoryInput').value = categoryId;
+        document.getElementById('categoryNameText').innerText = `${categoryName}`;
+    }
+
+ function AddActiveClass() {
+        $('.parent').first().addClass('active');
+    };
+
+    
+    $(function () {
+        $('.parent').on('click', function () {
+            $('.parent').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+    function AddActiveClassModifier () {
+        $('.parent1').first().addClass('active');
+    };
+    $(function () {
+        $('.parent1').on('click', function () {
+            $('.parent1').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+
+
+//Category Add
+$("#AddcategoryButton").on("click", function () {
+    $.ajax({
+        url: '/Menu/AddCategory',
+        type: 'GET',
+        success: function (data) {
+            $("#ShowAddCategory").html(data);
+            $("#AddCategory").modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            $("#ShowAddCategory").html('<option value="-1">Failed to load categories</option>');
+        }
+    });
+});
+
+$(document).on("click","#AddCategorySave", function (e) {
+    e.preventDefault();
+    var formData = new FormData($('#AddCategoryForm')[0]);
+    var form = $('#AddCategoryForm')[0];
+    var isValid = form.checkValidity();
+    console.log(isValid);
+    if (!isValid) {
+        console.log("Error");
+        return;
+    }
+        console.log(formData);
+
+        $.ajax({
+            url: '/Menu/AddCategory',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                debugger;
+                console.log("Data", data);
+                if (data.success==true) {
+                    $("#AddCategory").modal('hide');
+
+       
+                    // categoriesItem(data.categoryId, currentPageItem, ItempageSize, Itemsearch);
+                    location.reload();
+                } else {
+                    toastr.error("Validation: " + data.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                toastr.error("Error adding category. Please try again.");
+            }
+        });
+    
+});
+
+
+
+ $('.delete-category').click(function () {
+    debugger
+        var categoryId = $(this).data('category-id');
+       
+        $('#deleteCategoryInput').val(categoryId);
+        $('#deleteCategory').submit(function (e) {
+            e.preventDefault();
+            DeleteCategory(categoryId);
+        });
+    });
+
+
+    function DeleteCategory(categoryId) {
+        $.ajax({
+            url: '/Menu/DeleteCategory',
+            type: 'POST',
+            data: { id: categoryId },
+            success: function (response) {
+                if (response) {
+                    toastr.success(response.message);
+                    $('#deleteModal').modal('hide');
+                    location.reload();
+                } else {
+                    toastr.error("Error: " + response.message);  
+                }
+            },
+            error: function () {
+                alert('An error occurred while fetching item details.');
+            }
+        });
+
+    }
+
+
+$("#Itembutton").on("click",function(){
+     let selectedIds = [];
+
+      $(".delete-checkbox-item:checked").each(function () {
+                let id = parseInt($(this).val());
+                console.log("id " + id);
+                if (!isNaN(id)) {
+                    selectedIds.push(id);
+            }
+        });
+
+           
+  var IDs = { "Ids": selectedIds };
+    console.log(selectedIds);
+    if (selectedIds.length === 0) {
+                 toastr.error("Please select at least one item to delete.") 
+                return;
+    }else{
+        $.ajax({
+            url:"/Menu/DeleteManyItemGet",
+            method:"GET",
+           success:function(response){
+            if(response){
+                 $("#DeleteManyItemDiv").html(response);
+             $("#DeleteManyItem").modal('show')
+             $("#DeleteManyItem").submit(function(e){
+                e.preventDefault();
+                DeleteManyItem(IDs)
+             })
+           
+            }else{
+                 toastr.error("Error: " + response.message);
+            }
+        }
+    }) 
+}
+ 
+})
+
+
+function DeleteManyItem(IDs){
+  $.ajax({
+                url: "/Menu/DeleteManyItem",
+                type: "POST",
+                data: IDs,
+                success: function (response) {
+                    if (response) {
+
+                        $('#DeleteManyItem').modal('hide');
+                        location.reload();
+                    } else {
+                        toastr.error("Error: " + response.message);
+                    }
+         
+                },
+                error: function (xhr, status, error) {
+                    alert("Error deleting items. Please try again.");
+                    console.error("AJAX Error:", status, error);
+                }
+            });
+}
+          
+
+    var currentPageItem = 1;
+    var ItempageSize = 5;
+    var Itemsearch = "";
+    var currentCategoryId = null;
+
+    let selectedModifierGroupsEdit = [];
+    let modifierSettingsEdit = [];
+    let editSelectedModifierGroups = [];
+    
+    var selectedModifiersEdit = [];
+    let tempEditSelectedModifiers = [];
+    let editSelectedModifiers = [];
+
+
+$(document).ready(function () {
+
+AddActiveClass();
+AddActiveClassModifier();
+
+$('#categorySelector').on('change', function() {
+    var selectedOption = $(this).find('option:selected');
+    var categoryId = selectedOption.data('id');
+    currentCategoryId = categoryId;
+    categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+    console.log("Add Category with ID:", categoryId);
+});
+$('#modifierSelector').on('change', function() {
+    var selectedOption = $(this).find('option:selected');
+    var modifierId = selectedOption.data('id');
+    currentModifierGroup = modifierId;
+     modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch)
+    
+});
+
+
+
+ function handleModifierGroupChange() {
+   
+        var selected = $('#modifierSelector option:selected');
+        var modifierId = selected.val();
+        var ModifierName = selected.data('name');
+        var modifierDescription = selected.data('description');
+
+       
+        if(modifierId){
+            $('#mobileButtonsModifier').show();
+
+          
+            $('#mobileEditBtnmodifier, #mobileDeleteBtnmodifier').attr('data-modifier-id', modifierId);
+            $('#mobileEditBtnmodifier, #mobileDeleteBtnmodifier').attr('data-modifier-name', ModifierName);
+            $('#mobileEditBtnmodifier, #mobileDeleteBtnmodifier').attr('data-modifier-Description', modifierDescription);
+          
+        } else {
+            $('#mobileButtonsModifier').hide();
+        }
+    }
+
+    
+    handleModifierGroupChange();
+
+
+ function handleCategoryChange() {
+  
+        var selected = $('#categorySelector option:selected');
+        var categoryId = selected.val();
+        var categoryName = selected.data('name');
+        var categoryDescription = selected.data('description');
+
+       
+        if(categoryId){
+            $('#mobileButtons').show();
+
+          
+            $('#mobileEditBtn, #mobileDeleteBtn').attr('data-category-id', categoryId);
+            $('#mobileEditBtn, #mobileDeleteBtn').attr('data-category-name', categoryName);
+            $('#mobileEditBtn, #mobileDeleteBtn').attr('data-category-Description', categoryDescription);
+          
+        } else {
+            $('#mobileButtons').hide();
+        }
+    }
+
+    // Run on page load
+    handleCategoryChange();
+
+    $('#categorySelector').on('change', handleCategoryChange);
+
+   
+    $('#mobileEditBtn').on('click', function(){
+       
+        var categoryId = $(this).attr('data-category-id');
+         var categoryName = $(this).data('category-name');
+         var categoryDescription=$(this).data('category-Description');
+        $('#UpdateCategoryId').val(categoryId);
+        $("#CategoryNameInput").val(categoryName);
+         $("#CategoryDescriptionInput").val(categoryDescription);
+
+        var updateModal = new bootstrap.Modal(document.getElementById("UpdateModal"));
+        updateModal.show(); 
+    });
+
+
+      $('#mobileDeleteBtn').on('click', function(){
+       
+        var categoryId = $(this).attr('data-category-id');
+        $("#deleteCategoryInput").val(categoryId);
+    });
+
+  
+
+        $('.category-item').on("click", function () {
+            console.log("Add Category");
+
+            var categoryId = $(this).data("id");
+            currentCategoryId = categoryId;
+            categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+        });
+        const firstCategoryLink = document.querySelector('.category-item');
+        if (firstCategoryLink) {
+
+            const firstCategoryId = firstCategoryLink.getAttribute('data-id');
+            currentCategoryId = firstCategoryId;
+            categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+        }
+    });
+
+
+    function categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch) {
+        $.ajax({
+            url: "/Menu/GetItemsByCategory",
+            type: "GET",
+            data: {
+                categoryId: currentCategoryId
+                , page: currentPageItem, pageSize: ItempageSize, search: Itemsearch
+            },
+            success: function (data) {
+                $("#itemContainer").html(data);
+                //location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#itemContainer').html("<p>Error loading items.</p>");
+            }
+        });
+    }
+
+    $('#search-item').on('input', function () {
+        Itemsearch = $("#search-item").val();
+        console.log("Item Search", Itemsearch);
+        categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch)
+    });
+
+
+
+    $('.AddItemNew').on("click", function () {
+        GetItemsforAdd();
+        GetUnitsForAdd();
+currentCategoryId=$("#CategorySelectAdd").val();
+        categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+    });
+
+
+    function GetItemsforAdd() {
+        $.ajax({
+            url: '/Menu/GetAllCategory',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log("Data ", data)
+                var options = '<option value="-1">Category</option>';
+                $.each(data, function (index, category) {
+                    options += '<option value="' + category.categoryId + '">' + category.categoryName + '</option>';
+                });
+                $("#CategorySelectAdd").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#CategorySelectAdd").html('<option value="-1">Failed to load categories</option>');
+            }
+        });
+    }
+    function GetUnitsForAdd() {
+        $.ajax({
+            url: '/Menu/GetAllUnit',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log("Response Unit:", data);
+
+                var options = '<option value="-1">Unit</option>';
+                $.each(data, function (index, unit) {
+                    options += '<option value="' + unit.unitId + '">' + unit.unitName + '</option>';
+                });
+                $("#UnitSelectAdd").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#UnitSelectAdd").html('<option value="-1">Failed to load categories</option>');
+            }
+        });
+    }
+
+    var currentPageModifier = 1;
+    var ModifierpageSize = 5;
+    var Modifiersearch = "";
+    var currentModifierGroup = null;
+
+
+    $(document).ready(function () {
+$('#modifierSelector').on('change', function() {
+    var selectedOption = $(this).find('option:selected');
+    var categoryId = selectedOption.data('id');
+    currentModifierGroup = categoryId;
+    //categoriesItem(currentCategoryId, currentPageItem, ItempageSize, Itemsearch);
+    modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch);
+    console.log("Add Category with ID:", categoryId);
+});
+});
+
+$("#DeleteManyModifier").on("click",function(){
+   
+    let selectedIdsModifier = [];
+
+        $(".delete-checkbox123:checked").each(function () {
+            let id = parseInt($(this).val());
+            if (!isNaN(id)) {
+                selectedIdsModifier.push(id);
+            }
+        });
+
+           
+  var IDs = { "Ids": selectedIdsModifier };
+ 
+    if (selectedIdsModifier.length === 0) {
+            toastr.error("Please select at least one item to delete.") 
+            return;
+        }
+   else{
+        $.ajax({
+            url:"/Menu/DeleteManyModifierGet",
+            method:"GET",
+           success:function(response){
+            if(response){
+            $("#DeleteManyModifierDiv").html(response);
+             $("#DeleteManyModifierItem").modal('show');
+                             //DeleteManyModifier(IDs)
+
+             $(document).on("click","#DeleteModifierItem",function(e){
+               
+              //  e.preventDefault();
+                DeleteManyModifier(IDs)
+             })
+           
+            }else{
+                 toastr.error("Error: " + response.message);
+            }
+        }
+    }) 
+}
+ 
+})
+
+
+function DeleteManyModifier(IDs){
+  $.ajax({
+            url: "/Menu/DeleteManyModifierItem",
+            type: "POST",
+            data: IDs,
+            success: function (response) {
+                if (response) {
+                    toastr.success("Delete Modifier ")
+                     $('#DeleteManyModifierItem').modal('hide');
+                     setTimeout(location.reload(),500)
+                } else {
+                    console.log("Error: " + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Error deleting items. Please try again.");
+                console.error("AJAX Error:", status, error);
+            }
+        });
+}
+    $('.modifier-item-sidebar').on("click", function () {
+        GetItemsforAdd();
+        GetModifier();
+        var modifierGroupid = $(this).data("id");
+        currentModifierGroup = modifierGroupid;
+        modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch);
+
+    });
+
+    const firstCategoryLink = document.querySelector('.modifier-item-sidebar');
+    if (firstCategoryLink) {
+
+        const firstCategoryId = firstCategoryLink.getAttribute('data-id');
+        currentModifierGroup = firstCategoryId;
+        modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch);
+    }
+
+    function modifierItem(modifierGroupid, currentPageModifier, ModifierpageSize, Modifiersearch) {
+        $.ajax({
+            url: "/Menu/GetItemsByModifierGroup",
+            type: "GET",
+            data: {
+                modifierGroupId: modifierGroupid
+                , page: currentPageModifier, pageSize: ModifierpageSize, search: Modifiersearch
+            },
+            success: function (data) {
+                $("#itemModifier").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#itemModifier').html("<p>Error loading items.</p>");
+            }
+        });
+    }
+
+    $('#search-Modifier').on('input', function () {
+        Modifiersearch = $("#search-Modifier").val();
+        modifierItem(currentModifierGroup, currentPageModifier, ModifierpageSize, Modifiersearch);
+
+    });
+
+    $('#AddModifier').on("click", function () {
+        $.ajax({
+            url: '/Menu/AddModifier',
+            type: 'GET',
+            success: function (data) {
+                GetUnitsForModifier();
+                $("#ShowAddModifierItem").html(data);
+                $("#addmodifier").modal('show');
+
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#ShowAddModifierItem").html('<option value="-1">Failed to load categories</option>');
+            }
+        });
+    });
+
+    function GetModifier() {
+        $.ajax({
+
+            url: '/Menu/GetAllModifierGroup',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var options = '<option value="-1">Category</option>';
+                $.each(data, function (index, category) {
+
+                    options += '<option value="' + category.modifierGroupId + '">' + category.groupName + '</option>';
+                });
+
+
+                $("#ModifierSelect").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#ModifierSelect").html('<option value="-1">Failed to load categories</option>');
+            }
+        });
+    }
+
+    function GetUnitsForModifier() {
+        $.ajax({
+
+            url: '/Menu/GetAllUnit',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+
+                var options = '<option value="-1">Unit</option>';
+                $.each(data, function (index, unit) {
+                    options += '<option value="' + unit.unitId + '">' + unit.unitName + '</option>';
+                });
+                $("#UnitSelectForMOdifier").html(options);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#UnitSelectForMOdifier").html('<option value="-1">Failed to load categories</option>');
+            }
+        });
+    }
+
+
+$(document).on("click", ".edit-modifierGroup", function (e) {
+
+    
+var modifierGroupId = $(this).attr('data-modifier-id');
+
+     $.ajax({
+            url: `/Menu/_EditModifierGroupPV?id=${modifierGroupId}`,
+            type: 'GET',
+            success: function (data) {
+                console.log("Data.......................ghnjnbjn.", data);
+                $('#modifiergroupid').val(data.modifierGroupId);
+                $('#ModifierGroupNameEdit').val(data.modifierName);
+                $('#DescriptionmodifierGroup').val(data.descriptionmodifier);
+
+                editSelectedModifiers = data.modifierItems || [];
+                updateEditSelectedModifiersDisplay(editSelectedModifierGroups);
+
+                $('#EditModifierGroup').modal('show');
+            },
+            error: function () {
+                alert('Error loading modifier group details.');
+            }
+        });
+    });
+
+
+
+
+
+    function openEditModifierModal(modifierGroupId) {
+        console.log(modifierGroupId);
+        $.ajax({
+            url: `/Menu/_EditModifierGroupPV?id=${modifierGroupId}`,
+            type: 'GET',
+            success: function (data) {
+                console.log("Data.......................ghnjnbjn.", data);
+                $('#modifiergroupid').val(data.modifierGroupId);
+                $('#ModifierGroupNameEdit').val(data.modifierName);
+                $('#DescriptionmodifierGroup').val(data.descriptionmodifier);
+
+                editSelectedModifiers = data.modifierItems || [];
+                updateEditSelectedModifiersDisplay(editSelectedModifierGroups);
+
+                $('#EditModifierGroup').modal('show');
+            },
+            error: function () {
+                alert('Error loading modifier group details.');
+            }
+        });
+    }
+
+
+
+
+
+    $('.delete-modifierGroup').click(function (e) {
+
+        var modifierId = $(this).data('modifier-id');
+        var modifierGroupName = $(this).data('modifiername');
+        $('#modifiergroupDelete').val(modifierId);
+
+        //document.getElementById('ModifierGroupName').innerText = `${modifierGroupName}`;;
+      
+
+        $.ajax({
+            url: '/Menu/_DeleteModifierGroup',
+            type: 'GET',
+            data:{id:modifierId},
+            success: function (data) {
+                console.log("Data.......................ghnjnbjn.", data);
+                $('#DeleteModifierGroupdiv').html(data);
+                $('#DeleteModifierGroup').modal('show');
+
+                $("#DeleteModifiergroupbutton").on("click", function (e) {
+                    e.preventDefault();
+                    modifierGroupDelete(modifierId);
+                });
+                 //modifierGroupDelete(modifierId)
+            },
+            error: function () {
+                alert('Error loading modifier group details.');
+            }
+        });
+
+    });
+
+
+    function modifierGroupDelete(modifierId) {
+        $.ajax({
+            url: '/Menu/_DeleteModifierGroupPV',
+            type: 'POST',
+            data: { id: modifierId },
+            success: function (response) {
+                if (response.success) {
+                    $('#DeleteModifierGroup').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Item not found.');
+                }
+            }
+        });
+    }
+
+
+    function updateEditSelectedModifiersDisplay() {
+        let selectedHtml = editSelectedModifiers.length
+            ? '<ul class="d-flex flex-wrap gap-3">'
+            : '<p>No modifiers selected.</p>';
+
+        editSelectedModifiers.forEach(item => {
+            console.log("This icons item", item);
+            selectedHtml += `
+        <li class="d-flex modifier-item-delete border-2 border-dark me-2 p-2 gap-3" style="align-items: center; border: 1px solid #000; border-radius: 500px;">
+          ${item.name}    <span class="text-black removeModifieredit" data-item-id="${item.id}" style="cursor:pointer;">X</span>
+        </li>`;
+        });
+
+        selectedHtml += editSelectedModifiers.length ? '</ul>' : '';
+        $('#editSelectedModifiersList').html(selectedHtml);
+    }
+
+
+   
+
+        $(document).on('click', '.removeModifieredit', function () {
+
+            let itemId = $(this).data('item-id');
+            console.log(editSelectedModifiers);
+            console.log("delete-modifierGroup item ", itemId)
+            editSelectedModifiers = editSelectedModifiers.filter(item => item.id !== itemId);
+            $(this).closest('.modifier-item-delete').remove();
+            updateEditSelectedModifiersDisplay(editSelectedModifiers);
+
+        });
+</script>

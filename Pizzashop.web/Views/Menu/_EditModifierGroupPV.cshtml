@@ -1,0 +1,248 @@
+@model Pizzashop.entity.ViewModels.AddModifierGroupViewModel
+
+
+
+<div class="modal fade" id="EditModifierGroup" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+            <form id="editModifierGroupForm" method="post">
+                <input type="hidden" asp-for="ModifierGroupId" id="modifiergroupid">
+                <input type="hidden" name="editSelectedModifierIds" id="editSelectedModifierIds">
+                <input type="hidden" name="editSelectedModifierName" id="editSelectedModifierName">
+                <input type="hidden" id="SelectedModifierJsonEdit" name="SelectedModifierJsonEdit">
+
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Modifier Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="modifiergroupid">
+                    <div class="form-floating mb-3">
+
+                        <input asp-for="ModifierName" id="ModifierGroupNameEdit" type="text"
+                            class="form-control hover-effect" placeholder="">
+                        <label asp-for="ModifierName">Name</label>
+                        <span class="text-danger" asp-validation-for="ModifierName"></span>
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="Descriptionmodifier" id="DescriptionmodifierGroup" rows="3"
+                            class="form-control hover-effect" placeholder=""></textarea>
+                        <label asp-for="Descriptionmodifier">Description</label>
+                    </div>
+                </div>
+
+                <p class="rounded-2" id="EditExistingModi">
+                    <span class="text-primary">+ Edit Existing Modifier</span>
+                </p>
+                <div id="editSelectedModifiersList"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="EditExistingModifier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="editStaticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" id="editExistingModifierForm" asp-controller="Menu" asp-action="EditExistingModifier">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editStaticBackdropLabel">Edit Existing Modifier</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="editModifierSearch" class="form-control"
+                            placeholder="Search modifiers...">
+                    </div>
+                    <div class="responsive-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input id="editSelectModifierAll" class="form-check-input main-checkbox"
+                                            type="checkbox"></th>
+                                    <th>Name</th>
+                                    <th>Unit</th>
+                                    <th>Rate</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editItemsTable">
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-end mb-2 gap-4">
+                            <div class="d-flex align-items-center flex-row">
+                                <label for="editPageSizeSelect" class="me-2">Items per page:</label>
+                                <select id="editPageSizeSelect" class="form-select w-auto" style="height: 35px;">
+                                    <option value="2" selected>2</option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+                            <div id="editPaginationContainer" class="d-flex justify-content-center mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  
+                    <button type="button" class="btn btn-white border border-primary"
+                        data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#editModifierGroupForm').submit(function (e) {
+        e.preventDefault();
+        let selectedIds = editSelectedModifiers.map(item => item.id);
+        console.log("Call Here", selectedIds);
+        let selectedNames = editSelectedModifiers.map(item => item.name);
+        let jsonmodifier = JSON.stringify(editSelectedModifiers);
+        $('#editSelectedModifierIds').val(selectedIds.join(','));
+        $('#editSelectedModifierName').val(selectedNames.join(','));
+        $("#SelectedModifierJsonEdit").val(jsonmodifier)
+
+        console.log("JSON Data:", jsonmodifier);
+
+
+
+        $.ajax({
+            url: '/Menu/EditModifierGroup',
+            type: 'POST',
+            data: new FormData($('#editModifierGroupForm')[0]),
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response) {
+                    showSuccess('Item updated successfully');
+                    $('#EditModifierGroup').modal('hide');
+                    location.reload();
+                }
+
+            },
+            error: function (xhr) {
+                showError('Error updating item: ' + xhr.responseText);
+            },
+            complete: function () {
+                showLoading(false);
+            }
+        });
+    });
+
+
+
+    $('#EditExistingModi').click(function () {
+        $('#EditExistingModifier').modal('show');
+        let selectedSize = parseInt($('#editPageSizeSelect').val());
+        loadEditExistingModifiers(1, selectedSize);
+    });
+
+    $(document).on('change', '.editSelectItemCheckbox', function () {
+        let itemId = $(this).data('item-id');
+        let itemName = $(this).data('item-name');
+
+        if ($(this).is(':checked')) {
+            if (!editSelectedModifiers.some(item => item.id === itemId)) {
+                editSelectedModifiers.push({ id: itemId, name: itemName });
+            }
+        } else {
+            editSelectedModifiers = editSelectedModifiers.filter(item => item.id !== itemId);
+        }
+    });
+
+
+    $('#editExistingModifierForm').submit(function (event) {
+        event.preventDefault();
+       // editSelectedModifiers = [...tempEditSelectedModifiers];
+        updateEditSelectedModifiersDisplay(editSelectedModifiers);
+        $('#EditExistingModifier').modal('hide');
+    });
+    @* $(document).on('change', '.editSelectItemCheckbox', function () {
+        let itemId = $(this).data('item-id');
+        let itemName = $(this).data('item-name');
+
+        if ($(this).is(':checked')) {
+            if (!tempEditSelectedModifiers.some(item => item.id === itemId)) {
+                tempEditSelectedModifiers.push({ id: itemId, name: itemName });
+            }
+        } else {
+            tempEditSelectedModifiers = tempEditSelectedModifiers.filter(item => item.id !== itemId);
+        }
+    });
+
+
+    $('#editExistingModifierForm').submit(function (event) {
+        event.preventDefault();
+        editSelectedModifiers = [...tempEditSelectedModifiers];
+        updateEditSelectedModifiersDisplay(editSelectedModifiers);
+        $('#EditExistingModifier').modal('hide');
+    }); *@
+
+    function loadEditExistingModifiers(page = 1, size = 2, searchQuery = '') {
+        $.ajax({
+            url: `/Menu/EditExistingModifier?page=${page}&pageSize=${size}&search=${encodeURIComponent(searchQuery)}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+
+                
+                let itemsHtml = '';
+                if (response.data && response.data.length > 0) {
+                    $.each(response.data, function (index, item) {
+                        let isChecked = editSelectedModifiers.some(mod => mod.id === item.modifierId) ? 'checked' : '';
+                        itemsHtml += `<tr>
+                            <td><input type="checkbox" class="editSelectItemCheckbox" data-item-id="${item.modifierId}" data-item-name="${item.modifierName}" ${isChecked}></td>
+                            <td>${item.modifierName}</td>
+                            <td>${item.unitId}</td>
+                            <td>${item.rate}</td>
+                            <td>${item.quantity}</td>
+                        </tr>`;
+                    });
+                    $('#editItemsTable').html(itemsHtml);
+                    generateEditPagination(response.totalItems, response.page, response.pageSize);
+                } else {
+                    $('#editItemsTable').html('<tr><td colspan="5">No items available.</td></tr>');
+                    $('#editPaginationContainer').html('');
+                }
+            }
+        });
+    }
+
+    function generateEditPagination(totalItems, currentPage, pageSize) {
+        let totalPages = Math.ceil(totalItems / pageSize);
+        let paginationHtml = '<nav><ul class="pagination">';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="loadEditExistingModifiers(${i}, ${pageSize}); return false;">${i}</a>
+            </li>`;
+        }
+        paginationHtml += '</ul></nav>';
+        $('#editPaginationContainer').html(paginationHtml);
+    }
+
+    $('#editPageSizeSelect').change(function () {
+        let selectedSize = parseInt($(this).val());
+        loadEditExistingModifiers(1, selectedSize);
+    });
+
+
+
+    $('#editModifierSearch').on('keyup', function () {
+        let searchQuery = $(this).val().trim();
+        loadEditExistingModifiers(1, parseInt($('#pageSizeSelect').val()), searchQuery);
+    });
+
+</script>

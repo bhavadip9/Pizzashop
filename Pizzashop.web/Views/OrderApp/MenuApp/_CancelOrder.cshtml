@@ -1,0 +1,25 @@
+@model Pizzashop.entity.ViewModels.OrderDetailViewModel
+
+<div class="modal" id="CancelModel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Cancel Confirmation</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body justify-content-center align-items-center d-flex flex-column">
+                    <img src="~/images/toppng.com-warning-icon-2400x2400.png" alt="Warning" height="40" width="40">
+                    <p>Are you sure you want to Cancel Order ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary CancelBtn">Yes</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

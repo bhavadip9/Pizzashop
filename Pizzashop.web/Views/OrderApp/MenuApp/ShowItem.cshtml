@@ -1,0 +1,126 @@
+@model List<Pizzashop.entity.ViewModels.AddItemViewModel>
+
+    @{
+      var orderid=  @ViewBag.orderId;
+    }
+
+@if (Model.Any() != null)
+{
+
+    <div class="row g-3" style="display: flex; flex-wrap: wrap">
+        @foreach (var item in Model)
+        {
+             
+            <div class="@(orderid== 0 ? "col-6 col-sm-4 col-md-3" : "col-6 col-sm-2 col-md-4")">
+                <div class="card product-card p-2 position-relative">
+                  
+                    @if (@item.FoodType == "Vegetarian")
+                    {
+                        <div class="corner-ribbon bg-success"></div>
+                    }
+                    else if (@item.FoodType == "Non-Vegetarian")
+                    {
+                        <div class="corner-ribbon bg-danger"></div>
+                    }
+                    else
+                    {
+                        <div class="corner-ribbon bg-warning"></div>
+                    }
+                    <div class="d-flex align-items-center gap-2 showModifier" data-itemid="@item.ItemId" data-foodtype="@item.FoodType" data-taxamount="@item.Tax">
+                        <img src="@item.Image" class="product-img" alt="Item">
+                        <div>
+                            <h6 class="mb-0 exampleModalLabel " style="z-index: 3; position: relative;" id="ItemName-@item.ItemId">@item.ItemName</h6>
+                            <small class="text-muted item-price" id="ItemPrice-@item.ItemId">₹@item.Price</small>
+                            @* <input type="text" data-tax="@item.O"> *@
+                        </div>
+                    </div>
+
+                    <div class="btn text-end" data-itemid="item.ItemId" onclick="AddFavorito(@item.ItemId)">
+                        @if (@item.IsFav == true)
+                        {
+                           <i class="bi bi-heart-fill " style="color: #0077cc;"></i>
+                        }else{
+ <i class="bi bi-heart"></i>
+                        }
+                    </div>
+
+
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+<div id="ModifierItem"></div>
+
+<script>
+
+
+    function AddFavorito(id) {
+        
+        $.ajax({
+            url: '/OrderApp/AddFavorito',
+            type: 'GET',
+            data: { itemId: id },
+            success: function (data) {
+               
+                console.log(data)
+              if(data.success==true){
+                toastr.success(data.message)
+              }
+              else{
+                 toastr.success(data.message)
+              }
+               enableCategoryActiveToggle();
+                setTimeout(function(){
+                    CategoriesByItem(0, "",@ViewBag.orderId)
+                },500)
+            }
+        })
+    }
+    $(".showModifier").on("click", function () {
+        
+       var orderId=  `@ViewBag.orderId`;
+        console.log("jgkerkjk")
+        currentItemId = $(this).data("itemid");
+        var foodtype = $(this).data("foodtype");
+        var taxAmount=$(this).data("taxamount")
+        currentModifiers = []; 
+       
+       
+        $.ajax({
+            url: '/OrderApp/ModifierByItem',
+            type: "GET",
+            data: { itemid: currentItemId,foodtype:foodtype,TaxAmount:taxAmount,orderId:orderId },
+            success: function (data) {
+              if (typeof data === 'object' && data.success === false) {
+            // No modifiers, add item directly
+            if(orderId==0){
+               
+            }
+            else{
+                toastr.success(data.message);
+            }
+          
+            addToOrder({
+                id: currentItemId,   
+                name: $(`#ItemName-${currentItemId}`).html(),
+                price: parseFloat($(`#ItemPrice-${currentItemId}`).text().replace('₹', '')),
+                othertax:taxAmount,
+                modifiers: [],
+                quantity: 1
+            });
+        } else {
+           
+            $("#ModifierItem").html(data);
+            $("#ModifierItemModal").modal('show');
+        }
+               
+            }
+        });
+    });
+
+     
+    
+</script>

@@ -1,0 +1,113 @@
+@model List<Pizzashop.entity.ViewModels.AddCategoryViewModel>
+
+@{
+    ViewData["Title"] = "Order App";
+    Layout = "~/Views/Shared/_KotLayout.cshtml"; // Use the KOT layout
+}
+
+<style>
+    .nav-item .nav-link.active {
+        border-bottom: 4px solid rgb(25, 25, 231);
+    }
+
+    .color-blue {
+        background-color: #0d6efd;
+    }
+</style>
+
+
+<div class="p-3">
+    <h1 class=" fw-bold" style="color: #0077cc;">Kot </h1>
+
+    <div>
+
+
+        <ul class="nav nav-tabs gap-2 scrolling-tabs" id="myTabs" role="tablist" style="background-color: #f7eeee;
+    padding: 9px;
+    border-radius: 15px;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-decoration-none text-black tab-all-category" id="tab-item"
+                    data-bs-toggle="tab" data-bs-target="#tabpanel-item" type="button" role="tab"
+                    aria-controls="tabpanel-item" aria-selected="true">
+                    All 
+                </button>
+            </li>
+            @foreach (var item in @Model)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-decoration-none text-black tab-category" data-id="@item.CategoryId"
+                        id="tab-modifier-(@item.CategoryId)" data-bs-toggle="tab" data-bs-target="#tabpanel-modifier"
+                        type="button" role="tab" aria-controls="tabpanel-modifier" aria-selected="false">
+                        @item.CategoryName
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div id="OrderDetail"></div>
+</div>
+
+<div id="ShowOrderUpdate"></div>
+
+<script>
+
+    var currentPage = 1;
+    var pageSize = 3;
+    var status = "progress";
+    var categoryId = 0;
+
+    $(document).ready(function () {
+        CategoryOrder(0, currentPage, pageSize, status);
+        $('.tab-category').on("click", function () {
+            var categoryId = $(this).data("id");
+
+            CategoryOrder(categoryId, currentPage, pageSize, status);
+
+        });
+        $('.tab-all-category').on("click", function () {
+            CategoryOrder(0, currentPage, pageSize, status);
+        });
+
+    });
+
+    
+
+    function CategoryOrder(categoryId, currentPage, pageSize, status) {
+        $.ajax({
+            url: "/OrderApp/CategoryWithOrder",
+            method: "GET",
+            data: {
+                categoryId: categoryId,
+                page: currentPage,
+                pageSize: pageSize,
+                status: status,
+            },
+            success: function (data) {       
+                $("#OrderDetail").html(data);
+                //location.reload();
+            }
+        })
+
+    }
+
+    $(document).on("click", "#orderentry", function () {
+        const orderid = $(this).data('orderid');
+        var status=$(this).data('status');
+        console.log(orderid)
+
+        $.ajax({
+            url: "/OrderApp/ShowOrderUpdate",
+            type: "GET",
+            data: { orderid: orderid,
+            status:status
+             },
+            success: function (data) {
+                console.log(data);
+                $("#ShowOrderUpdate").html(data);
+                $("#OrderUpdate").modal('show');
+            }
+        });
+    });
+
+</script>

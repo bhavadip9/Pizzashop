@@ -1,0 +1,281 @@
+@model Pizzashop.entity.ViewModels.OrderViewModel
+@{
+       ViewData["Title"] = "Orders";
+}
+
+<div class="d-sm-flex justify-content-between align-items-center ms-3 pt-4">
+       <h1 class=" fw-bold" style="color: #0077cc;">Order</h1>
+       <div class="d-flex gap-2 me-2 justify-content-end align-items-center col-md-9 ">
+              <div class="input-group ">
+                     <input type="search" name="search " id="search-orders" placeholder="Search"
+                            class="form-control border-end-0">
+                     <span class="input-group-text bg-white border-start-0 d-md-block d-none">
+                            <i class="bi bi-search" id="searchOrder"></i>
+                            
+                     </span>
+              </div>
+
+              <select id="order-status" class="form-select " aria-label="Default select example">
+                     <option selected value="">All Orders</option>
+                     <option value="Pending">Pending</option>
+                     <option value="Complete">Complete</option>
+                     <option value="InProgress">Processing</option>
+                     <option value="Served">Served</option>
+                     <option value="Failed">Cancelled</option>
+              </select>
+
+              <select id="order-time" class="form-select " aria-label="Default select example">
+                     <option selected value="all">All Time</option>
+                     <option value="7">Last 7 Days</option>
+                     <option value="30">Last 30 Days</option>
+                     <option value="month">Current Month</option>
+              </select>
+
+              <button id="export-tax-btn" type="button" onclick="exportToExcel()"
+                     class="btn py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap me-3 d-flex justify-content-center align-items-center gap-1"
+                     style="height: 35px; background-color: #0077cc;">
+                     <img src="~/images/icons/export-white.png" width="24px" class="">
+                     <span> Export</span>
+              </button>
+       </div>
+</div>
+
+<div id="date-search">
+       <div class="d-md-flex flex-column flex-sm-row justify-content-end align-items-center gap-2 mb-3">
+              <div class="form-floating w-25">
+                     <input type="date" id="fromDate" class="form-control" placeholder="Start Date">
+                     <label for="fromDate">From Date</label>
+              </div>
+              <div class="form-floating w-25">
+                     <input type="date" id="toDate" class="form-control" placeholder="End Date">
+                     <label for="toDate">To Date</label>
+              </div>
+              <div class="">
+                     <button id="SearchButton" 
+                            class="btn py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap" style="background-color: #0077cc;">
+                            Search
+                     </button>
+                     <button type="reset" id="resetButton"
+                            class="btn border-primary rounded-0 text-primary py-2 px-3 text-decoration-none rounded-1 ms-1 me-4 text-nowrap">
+                            Cancel
+                     </button>
+              </div>
+       </div>
+</div>
+
+
+<div class="ms-3 mt-4 table-responsive bg-white shadow" id="OrderTablebody">
+</div>
+
+
+
+
+
+<script>
+
+
+       var currentPageOrder = 1;
+       var OrderpageSize = 5;
+       var Ordersearch = "";
+       var OrderDates = "";
+       var OrderStatus = "";
+       var fromDate = "";
+       var toDate = "";
+       var orderbyorderid="";
+       var orderbyorderstatus="";
+       var orderbyorderdate="";
+       var orderbyorderamount="";
+
+       @* function OrderSection(page, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate) {
+
+              console.log("orderStatus1", OrderStatus)
+              console.log("orderDates1", OrderDates)
+              console.log("fromDate1", fromDate)
+              console.log("toDate1", toDate)
+              console.log("search1", Ordersearch)
+              $.ajax({
+                     url: "/Order/OrderTable",
+                     type: "GET",
+                     data: {
+                            page: page,
+                            pageSize: OrderpageSize,
+                            search: Ordersearch,
+                            date: OrderDates,
+                            status: OrderStatus,
+                            fromDate: fromDate,
+                            toDate: toDate
+                     },
+                     success: function (data) {
+                            $("#OrderTablebody").html(data);
+                     },
+                     error: function (xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $('#OrderTablebody').html("<p>Error loading items.</p>");
+                     }
+              });
+       } *@
+       function OrderSection(page, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate) {
+
+              console.log("orderStatus1", OrderStatus)
+              console.log("orderDates1", OrderDates)
+              console.log("fromDate1", fromDate)
+              console.log("toDate1", toDate)
+              console.log("search1", Ordersearch)
+              $.ajax({
+                     url: "/Order/OrderTable",
+                     type: "GET",
+                     data: {
+                            page: page,
+                            pageSize: OrderpageSize,
+                            search: Ordersearch,
+                            date: OrderDates,
+                            status: OrderStatus,
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            orderbyorderid:orderbyorderid,
+                            orderbyorderdate:orderbyorderdate
+                     },
+                     success: function (data) {
+                            $("#OrderTablebody").html(data);
+                     },
+                     error: function (xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $('#OrderTablebody').html("<p>Error loading items.</p>");
+                     }
+              });
+       }
+
+       $(document).ready(function () {
+             OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+              console.log("ready!");
+       });
+
+
+       $('#search-orders').on('input', function () {
+              Ordersearch = $("#search-orders").val();
+              console.log(Ordersearch);
+             OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+       });
+
+
+
+
+       $("#SearchButton").on("click", function () {
+
+              console.log("------------")
+              OrderStatus = $("#order-status").val();
+              OrderDates = $("#order-time").val();
+              fromDate = $("#fromDate").val();
+              toDate = $("#toDate").val();
+              ;
+              Ordersearch = $("#search-orders").val();
+              console.log("orderStatus", OrderStatus)
+              console.log("orderDates", OrderDates)
+              console.log("fromDate", fromDate)
+              console.log("toDate", toDate)
+              console.log("search", Ordersearch)
+
+             OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate,orderbyorderid,orderbyorderdate)
+
+
+       })
+
+
+       function exportToExcel() {
+              // Get filter values
+              const orderStatus = $('#order-status').val();
+              const orderDates = $('#order-time').val();
+              const fromDate = $('#fromDate').val();
+              const toDate = $('#toDate').val();
+              const searchOrder = $('#search-orders').val();
+
+              // Validate date range
+              if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+                     showAlert('Error', 'End date must be after start date', 'error');
+                     return;
+              }
+
+              // Prepare loading state
+              const exportBtn = $('#export-tax-btn');
+              exportBtn.prop('disabled', true);
+              exportBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...');
+
+              // AJAX call
+              $.ajax({
+                     url: "ExportToExcel",
+                     type: 'GET',
+                     data: {
+                            status: orderStatus,
+                            time: orderDates,
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            search: searchOrder
+                     },
+                     xhrFields: {
+                            responseType: 'blob'
+                     },
+                     success: function (data, status, xhr) {
+
+                            // Create download link
+                            const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            const downloadUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = 'OrdersExport.xlsx';
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Cleanup
+                            setTimeout(function () {
+                                   document.body.removeChild(a);
+                                   window.URL.revokeObjectURL(downloadUrl);
+                            }, 100);
+                     },
+                     complete: function () {
+                            // Reset button state
+                            exportBtn.prop('disabled', false);
+                            exportBtn.html('<img src="/images/icons/export-white.png" width="24px"><span> Export</span>');
+                     }
+              });
+       }
+
+       // Helper function to show alerts (using SweetAlert or similar)
+       function showAlert(title, message, type) {
+              if (typeof Swal !== 'undefined') {
+                     Swal.fire(title, message, type);
+              } else {
+                     alert(title + ': ' + message);
+              }
+       }
+
+       // Reset form function
+       function resetForm() {
+              $('#order-status').val('');
+              $('#order-time').val('all');
+              $('#fromDate').val('');
+              $('#toDate').val('');
+              $('#search-orders').val('');
+       }
+
+       // Event bindings
+       @* $(document).ready(function () {
+              // $('#export-tax-btn').click(exportToExcel);
+              $('#resetButton').click(resetForm);
+              OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate);
+
+       }); *@
+
+              $("#resetButton").on("click", function () {
+                     resetForm();
+                     OrderStatus = $("#order-status").val();
+                     OrderDates = $("#order-time").val();
+                     fromDate = $("#fromDate").val();
+                     toDate = $("#toDate").val();
+                     Ordersearch = $('#search-orders').val('');
+                     OrderSection(currentPageOrder, OrderpageSize, Ordersearch, OrderDates, OrderStatus, fromDate, toDate);
+              })
+
+
+
+
+</script>

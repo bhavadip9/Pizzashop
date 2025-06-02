@@ -1,0 +1,212 @@
+@model List<Pizzashop.entity.ViewModels.AddTaxViewModel>
+
+<div class="table-responsive bg-white p-3 shadow">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    IsEnable
+                </th>
+                <th>
+                    Default
+                </th>
+                <th>
+                    Taxs Value
+                </th>
+                <th>
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+             @if ( Model.Any())
+            {
+            @foreach (var tax in @Model)
+            {
+                <tr>
+                    <td id="taxname-@tax.TaxId">@tax.TaxName</td>
+                    <td><span>@(tax.TaxType ? "Percentage" : "Flat Amount")</span></td>
+                    <td>
+                        <div class="form-check form-switch ">
+                            <input data-tax-id="@tax.TaxId" class="form-check-input toggle-switch taxenable " type="checkbox" @(tax.IsEnable ? "checked" : "") disabled>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input toggle-switch" type="checkbox"  @(tax.IsDefault ? "checked"
+                                : "" ) disabled>
+                        </div>
+                    </td>
+                    <td id="taxamount-@tax.TaxId">
+                        @tax.TaxAmount
+                        <span>@(tax.TaxType ? "%" : "₹")</span>
+                    </td>
+                    <td>
+                         @if ((bool)Context.Items["CanAddEdit"] == true)
+                        {
+                        <button class="btn edit-tax" data-tax-id="@tax.TaxId"><i class="bi bi-pen"></i></button>
+                        }
+                          @if ((bool)Context.Items["CanDelete"] == true)
+                        {
+                        <button class="btn"  data-tax-id="@tax.TaxId" id="delete-tax"><i class="bi bi-trash"></i></button>
+                        }
+                    </td>
+                </tr>
+            }
+            }else{
+                 <tr>
+                    <td colspan="7" class="text-center">No Tax found.</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<div id="EditTaxdiv"></div>
+<div id="DeleteTaxdiv"></div>
+
+<script>
+
+
+// Edit Tax
+
+    $(document).off("click",".edit-tax").on("click",".edit-tax",function(){
+      
+        var taxid=$(this).data("tax-id");
+         $.ajax({
+            url: '/TaxAndFee/EditTax',
+            type: 'GET',
+            data: { id: taxid },
+            success: function (response) {
+                console.log("Data :", response);
+                if (response) {
+                    $("#EditTaxdiv").html(response);
+                    $("#EditTax").modal('show');
+
+                } else {
+                    alert('Item not found.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while fetching item details.');
+            }
+        });
+    })
+
+     $(document).on('submit', '#EditTaxForm', function (e) {
+            e.preventDefault();
+            var formData = new FormData($('#EditTaxForm')[0]);
+            console.log(formData);
+            $.ajax({
+                url: '/TaxAndFee/EditTax',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#EditTax').modal('hide');
+                        //location.reload();
+                        TaxSection(Taxsearch);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+        })
+
+@* 
+$(document).on("change",".taxenable",function(){
+    
+    var taxid= $(this).data("tax-id");
+    var enablestatus=$(this).val();
+    var taxname=$(`#taxname-${taxid}`).html().trim();
+   
+   var formData={
+TaxId:taxid,
+IsEnable:enablestatus,
+TaxName:taxname
+    }
+
+    console.log(formData)
+     $.ajax({
+                url: '/TaxAndFee/EditTax',
+                type: 'POST',
+                data: formData,
+             
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        location.reload();
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+
+}) *@
+
+
+//DeleteTax 
+     $(document).on("click","#delete-tax",function(){
+       
+        var taxid=$(this).data("tax-id");
+         $.ajax({
+            url: '/TaxAndFee/DeleteTaxGet',
+            type: 'GET',
+            data: { id: taxid },
+            success: function (response) {
+                console.log("Data :", response);
+                if (response) {
+                    $("#DeleteTaxdiv").html(response);
+                    $("#DeleteTaxModal").modal('show');
+
+                } else {
+                    alert('Item not found.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while fetching item details.');
+            }
+        });
+    })
+
+      $(document).on('submit', '#DeleteTaxForm', function (e) {
+        
+            e.preventDefault();
+            var taxid=$("#DeleteTaxId").val();
+            $.ajax({
+                url: '/TaxAndFee/DeleteTax',
+                type: 'POST',
+                data: {id:taxid},
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#DeleteTaxModal').modal('hide');
+                        TaxSection(Taxsearch);
+                       // location.reload();
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+        })
+
+</script>
