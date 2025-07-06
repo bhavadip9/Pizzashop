@@ -15,13 +15,12 @@ namespace PizzaShop.repository.Implementation
         }
 
         #region  Category
-
         public async Task<List<Category>> GetAllCategory()
         {
             try
             {
                 return await _context.Categories
-                       .Where(c => !c.IsDeleted).OrderByDescending(o=>o.CategoryId).ToListAsync();
+                       .Where(c => !c.IsDeleted).OrderByDescending(o => o.CategoryId).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -30,7 +29,6 @@ namespace PizzaShop.repository.Implementation
 
             }
         }
-
 
         public List<Category> GetAllCategoryLIst()
         {

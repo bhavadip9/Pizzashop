@@ -97,7 +97,7 @@ public class HomeController : Controller
         var model = _homeService.GetDashboard(dateRange);
         var user = _sessionService.GetUser(HttpContext);
         model.Role = user.RolesNavigation.RoleName;
-        
+
 
         return PartialView("_DashBoardPV", model);
     }
@@ -307,22 +307,5 @@ public class HomeController : Controller
         }
     }
 
-     [Route("ServerError")]
-    public IActionResult ServerError()
-    {
-        // You can customize this view or return your own static HTML, etc.
-        // Option 1: Return a View (requires setup of MVC views)
-        // return View("ServerError");
 
-        // Option 2: Return inline HTML for demonstration
-        string html = @"
-        <html>
-        <head><title>Server Error</title></head>
-        <body>
-            <h1>Oops! Something went wrong.</h1>
-            <p>Please try again later.</p>
-        </body>
-        </html>";
-        return Content(html, "text/html");
-    }
 }

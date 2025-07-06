@@ -12,7 +12,7 @@ using Pizzashop.entity.ViewModels;
 
 namespace Pizzashop.Controllers
 {
-   
+
     public class LoginController : Controller
     {
         private readonly IAuthService _authService;
@@ -42,8 +42,6 @@ namespace Pizzashop.Controllers
             if (!string.IsNullOrEmpty(Request.Cookies["UserData"]))
             {
                 return RedirectToAction("Index", "Home");
-
-                //  return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -52,8 +50,6 @@ namespace Pizzashop.Controllers
             }
 
             var user = _sessionService.GetUser(HttpContext);
-            //   _sessionService.SetUser(HttpContext, user);
-
             if (user == null)
             {
                 return View();
@@ -71,8 +67,6 @@ namespace Pizzashop.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-
-
             try
             {
                 var user = await _authService.AuthenticateUser(model.Email, model.Password);
